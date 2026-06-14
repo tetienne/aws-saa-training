@@ -222,9 +222,19 @@ function renderNav() {
     if (state.flagged[q.id]) cell.classList.add("flagged");
     if (idx === state.current) cell.classList.add("current");
     cell.textContent = idx + 1;
-    cell.onclick = () => { state.current = idx; renderQuestion(); renderNav(); };
+    cell.onclick = () => { state.current = idx; renderQuestion(); renderNav(); collapseNavOnMobile(); };
     grid.appendChild(cell);
   });
+}
+function setNavCollapsed(collapsed) {
+  const nav = $(".q-nav");
+  const toggle = $("#navToggle");
+  if (!nav || !toggle) return;
+  nav.classList.toggle("collapsed", collapsed);
+  toggle.setAttribute("aria-expanded", String(!collapsed));
+}
+function collapseNavOnMobile() {
+  if (window.matchMedia("(max-width: 820px)").matches) setNavCollapsed(true);
 }
 function updateNav() {
   $$("#navGrid .nav-cell").forEach((cell, idx) => {
@@ -520,6 +530,7 @@ function init() {
   $("#flagBtn").onclick = toggleFlag;
   $("#btnFinish").onclick = () => finishExam(false);
   $("#btnFinishSide").onclick = () => finishExam(false);
+  $("#navToggle").onclick = () => setNavCollapsed(!$(".q-nav").classList.contains("collapsed"));
   $("#btnCopyPrompt").onclick = () => {
     $("#promptOut").select();
     navigator.clipboard.writeText($("#promptOut").value).then(() => toast("Prompt copied! Paste it into Claude."));
