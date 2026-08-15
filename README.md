@@ -6,15 +6,17 @@ A lightweight, static web app to practice for the **AWS Certified Solutions Arch
 
 ## Features
 
-- **197 practice questions** with detailed explanations for every answer (including why the wrong options are wrong)
+- **300 practice questions** with detailed explanations for every answer (including why the wrong options are wrong)
+- Written in the register of the official exam: third-person scenarios, four options for multiple choice, five or more with `(Select TWO.)` for multiple response
+- Every question tagged with the exam guide task statement it tests (1.1 … 4.4), all 14 covered
 - Question bank weighted like the real exam:
 
   | Domain | Weight | Questions |
   |---|---|---|
-  | 1 — Design Secure Architectures | 30% | 57 |
-  | 2 — Design Resilient Architectures | 26% | 50 |
-  | 3 — Design High-Performing Architectures | 24% | 50 |
-  | 4 — Design Cost-Optimized Architectures | 20% | 40 |
+  | 1 — Design Secure Architectures | 30% | 90 |
+  | 2 — Design Resilient Architectures | 26% | 78 |
+  | 3 — Design High-Performing Architectures | 24% | 72 |
+  | 4 — Design Cost-Optimized Architectures | 20% | 60 |
 
 - **Two modes:**
   - *Exam* — answers revealed only at the end, with a per-domain score report
@@ -43,6 +45,7 @@ No dependencies, no server required.
 | `index.html` | UI and styles |
 | `app.js` | Quiz engine (session, timer, scoring, review) |
 | `questions.js` | The full question bank (one object per question) |
+| `validate.mjs` | Integrity check for the bank (`node validate.mjs`) |
 
 ### Question format
 
@@ -50,6 +53,7 @@ No dependencies, no server required.
 {
   "id": 1,
   "domain": 1,            // 1-4, see table above
+  "ts": "1.3",            // exam guide task statement
   "q": "Question text...",
   "options": ["A", "B", "C", "D"],
   "correct": 1,           // index, or an array of indexes with "multi": true
@@ -57,7 +61,7 @@ No dependencies, no server required.
 }
 ```
 
-Contributions of new questions are welcome — keep explanations factual and cover why each distractor is incorrect.
+Contributions of new questions are welcome — keep explanations factual and cover why each distractor is incorrect. Run `node validate.mjs` before opening a pull request: it checks ids, option counts, task statement coverage, answer-position balance, and near-duplicate stems.
 
 ## Disclaimer
 
