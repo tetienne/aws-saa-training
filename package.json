@@ -1,0 +1,16 @@
+{
+  "name": "aws-saa-training",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "AWS SAA-C03 practice exam tool",
+  "license": "MIT",
+  "scripts": {
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "node validate.mjs && node test-escape.mjs"
+  },
+  "devDependencies": {
+    "prettier": "3.6.2"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "printWidth": 100,
+  "singleQuote": true,
+  "overrides": [
+    {
+      "comment": "validate.mjs JSON.parses the bank array, so keep it JSON-compatible: quoted keys, double quotes, no trailing commas.",
+      "files": "questions.js",
+      "options": {
+        "quoteProps": "preserve",
+        "singleQuote": false,
+        "trailingComma": "none"
+      }
+    }
+  ]
+}

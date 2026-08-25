@@ -24,18 +24,18 @@ They follow the register of the real exam: third-person scenarios, a single qual
 
 300 questions, weighted like the scored content of the real exam:
 
-| Domain | Weight | Questions |
-|---|---|---|
-| 1 - Design Secure Architectures | 30% | 90 |
-| 2 - Design Resilient Architectures | 26% | 78 |
-| 3 - Design High-Performing Architectures | 24% | 72 |
-| 4 - Design Cost-Optimized Architectures | 20% | 60 |
+| Domain                                   | Weight | Questions |
+| ---------------------------------------- | ------ | --------- |
+| 1 - Design Secure Architectures          | 30%    | 90        |
+| 2 - Design Resilient Architectures       | 26%    | 78        |
+| 3 - Design High-Performing Architectures | 24%    | 72        |
+| 4 - Design Cost-Optimized Architectures  | 20%    | 60        |
 
 All 14 task statements (1.1 through 4.4) are covered, each question tagged with the one it tests.
 
 ## Features
 
-- **Two modes:** *Exam* reveals answers only at the end with a per-domain report; *Practice* gives immediate feedback and explanation after each question
+- **Two modes:** _Exam_ reveals answers only at the end with a per-domain report; _Practice_ gives immediate feedback and explanation after each question
 - Timer options, including a 130-minute full-exam setting
 - Single and multiple-answer questions, question and answer shuffling
 - Flag questions for review, navigate freely between them
@@ -72,13 +72,16 @@ No dependencies, no server required.
 
 ## Project structure
 
-| File | Purpose |
-|---|---|
-| `index.html` | UI and styles |
-| `app.js` | Quiz engine (session, timer, scoring, review) |
-| `questions.js` | The question bank, one object per question |
-| `validate.mjs` | Integrity check for the bank (`node validate.mjs`) |
-| `test-escape.mjs` | Guards the escaping of bank content in the DOM (`node test-escape.mjs`) |
+| File                      | Purpose                                                                 |
+| ------------------------- | ----------------------------------------------------------------------- |
+| `index.html`              | UI and styles                                                           |
+| `app.js`                  | Quiz engine (session, timer, scoring, review)                           |
+| `questions.js`            | The question bank, one object per question                              |
+| `validate.mjs`            | Integrity check for the bank (`node validate.mjs`)                      |
+| `test-escape.mjs`         | Guards the escaping of bank content in the DOM (`node test-escape.mjs`) |
+| `package.json`            | Pins Prettier, the only development dependency                          |
+| `.pre-commit-config.yaml` | Formatting and check hooks, see [Setup](#setup)                         |
+| `mise.toml`               | Node and pre-commit versions, and the `setup` task                      |
 
 ### Question format
 
@@ -100,9 +103,28 @@ Two contributions are especially useful:
 
 **Reporting a wrong answer or explanation.** Open an issue with the question id and the AWS documentation page that contradicts it. AWS services change, and questions that were correct when written go stale.
 
-**Adding questions.** Write them against a task statement from the exam guide, cite nothing you have not verified in AWS documentation, and explain why each distractor fails. Run `node validate.mjs` before opening the pull request. Questions submitted here are contributed under CC BY 4.0, like the rest of the bank.
+**Adding questions.** Write them against a task statement from the exam guide, cite nothing you have not verified in AWS documentation, and explain why each distractor fails. Questions submitted here are contributed under CC BY 4.0, like the rest of the bank.
 
 Original questions only. Pull requests containing recalled or copied exam content will be closed.
+
+### Setup
+
+The app itself has no runtime dependencies. Formatting and checks are automated with [pre-commit](https://pre-commit.com). [mise](https://mise.jdx.dev) provides Node and pre-commit at the versions CI uses:
+
+```bash
+mise install                         # Node and pre-commit, versions from mise.toml
+mise run setup                       # npm install + pre-commit install
+```
+
+Without mise, install Node 24 and pre-commit yourself, then run `npm install && pre-commit install`. The Prettier hook runs from `node_modules`, so re-run `mise run setup` if a commit fails on it after cleaning the working tree.
+
+Every commit is then formatted with Prettier, and `validate.mjs` / `test-escape.mjs` run on the files they cover. The same checks run in CI. To run them by hand:
+
+```bash
+npm run format                       # or: npm run format:check
+npm test                             # validate.mjs + test-escape.mjs
+pre-commit run --all-files
+```
 
 ## License
 
