@@ -1,4 +1,4 @@
-name: Validate question bank
+name: Checks
 
 on:
   push:
@@ -14,3 +14,4 @@ jobs:
         with:
           node-version: '24'
       - run: node validate.mjs
+      - run: node test-escape.mjs

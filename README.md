@@ -78,6 +78,7 @@ No dependencies, no server required.
 | `app.js` | Quiz engine (session, timer, scoring, review) |
 | `questions.js` | The question bank, one object per question |
 | `validate.mjs` | Integrity check for the bank (`node validate.mjs`) |
+| `test-escape.mjs` | Guards the escaping of bank content in the DOM (`node test-escape.mjs`) |
 
 ### Question format
 
@@ -105,7 +106,7 @@ Original questions only. Pull requests containing recalled or copied exam conten
 
 ## License
 
-The code (`index.html`, `app.js`, `validate.mjs`) is under the [MIT License](LICENSE).
+The code (`index.html`, `app.js`, `validate.mjs`, `test-escape.mjs`) is under the [MIT License](LICENSE).
 
 The question bank (`questions.js`) is under [CC BY 4.0](LICENSE-CONTENT): reuse it anywhere, including commercially, as long as you credit the source and say what you changed.
 
