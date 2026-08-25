@@ -7,7 +7,7 @@ body:
     attributes:
       label: Question id
       description: The "id" field of the question in questions.js
-      placeholder: "142"
+      placeholder: '142'
     validations:
       required: true
   - type: textarea

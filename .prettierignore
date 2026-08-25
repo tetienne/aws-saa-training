@@ -1,0 +1,5 @@
+.claude/
+.serena/
+node_modules/
+package-lock.json
+rapport-examen-blanc-*.html

@@ -1,401 +1,972 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AWS SAA-C03 · Exam Practice</title>
-<style>
-  :root {
-    --bg: #0d1117;
-    --panel: #161b22;
-    --panel-2: #1c2333;
-    --border: #2d333b;
-    --text: #e6edf3;
-    --muted: #8b949e;
-    --accent: #ff9900;      /* AWS orange */
-    --accent-2: #ec7211;
-    --blue: #4493f8;
-    --green: #3fb950;
-    --red: #f85149;
-    --yellow: #d29922;
-    --radius: 12px;
-    --shadow: 0 8px 24px rgba(0,0,0,.4);
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    line-height: 1.55;
-    -webkit-font-smoothing: antialiased;
-  }
-  .app { max-width: 1100px; margin: 0 auto; padding: 24px 20px 80px; }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AWS SAA-C03 · Exam Practice</title>
+    <style>
+      :root {
+        --bg: #0d1117;
+        --panel: #161b22;
+        --panel-2: #1c2333;
+        --border: #2d333b;
+        --text: #e6edf3;
+        --muted: #8b949e;
+        --accent: #ff9900; /* AWS orange */
+        --accent-2: #ec7211;
+        --blue: #4493f8;
+        --green: #3fb950;
+        --red: #f85149;
+        --yellow: #d29922;
+        --radius: 12px;
+        --shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        line-height: 1.55;
+        -webkit-font-smoothing: antialiased;
+      }
+      .app {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 24px 20px 80px;
+      }
 
-  /* Header */
-  header.bar {
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 16px; padding: 14px 18px; background: var(--panel);
-    border: 1px solid var(--border); border-radius: var(--radius);
-    position: sticky; top: 12px; z-index: 50; box-shadow: var(--shadow);
-    backdrop-filter: blur(6px);
-  }
-  .brand { display: flex; align-items: center; gap: 12px; }
-  .logo {
-    width: 38px; height: 38px; border-radius: 9px; flex-shrink: 0;
-    background: linear-gradient(135deg, var(--accent), var(--accent-2));
-    display: grid; place-items: center; font-weight: 800; color: #1a1a1a; font-size: 13px;
-  }
-  .brand h1 { font-size: 15px; font-weight: 700; letter-spacing: .2px; }
-  .brand p { font-size: 12px; color: var(--muted); }
-  .bar-right { display: flex; align-items: center; gap: 14px; }
-  .timer { font-variant-numeric: tabular-nums; font-weight: 700; font-size: 15px; color: var(--accent); }
-  .timer.warn { color: var(--red); }
-  .progress-mini { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+      /* Header */
+      header.bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 14px 18px;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        position: sticky;
+        top: 12px;
+        z-index: 50;
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(6px);
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .logo {
+        width: 38px;
+        height: 38px;
+        border-radius: 9px;
+        flex-shrink: 0;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        display: grid;
+        place-items: center;
+        font-weight: 800;
+        color: #1a1a1a;
+        font-size: 13px;
+      }
+      .brand h1 {
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: 0.2px;
+      }
+      .brand p {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .bar-right {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .timer {
+        font-variant-numeric: tabular-nums;
+        font-weight: 700;
+        font-size: 15px;
+        color: var(--accent);
+      }
+      .timer.warn {
+        color: var(--red);
+      }
+      .progress-mini {
+        font-size: 13px;
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+      }
 
-  /* Buttons */
-  .btn {
-    appearance: none; border: 1px solid var(--border); background: var(--panel-2);
-    color: var(--text); padding: 10px 18px; border-radius: 9px; cursor: pointer;
-    font-size: 14px; font-weight: 600; transition: .15s; display: inline-flex;
-    align-items: center; gap: 8px; line-height: 1;
-  }
-  .btn:hover { border-color: var(--accent); }
-  .btn:disabled { opacity: .4; cursor: not-allowed; }
-  .btn.primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); border: none; color: #1a1a1a; }
-  .btn.primary:hover { filter: brightness(1.08); }
-  .btn.ghost { background: transparent; }
-  .btn.small { padding: 7px 12px; font-size: 13px; }
+      /* Buttons */
+      .btn {
+        appearance: none;
+        border: 1px solid var(--border);
+        background: var(--panel-2);
+        color: var(--text);
+        padding: 10px 18px;
+        border-radius: 9px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+        transition: 0.15s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        line-height: 1;
+      }
+      .btn:hover {
+        border-color: var(--accent);
+      }
+      .btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+      .btn.primary {
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        border: none;
+        color: #1a1a1a;
+      }
+      .btn.primary:hover {
+        filter: brightness(1.08);
+      }
+      .btn.ghost {
+        background: transparent;
+      }
+      .btn.small {
+        padding: 7px 12px;
+        font-size: 13px;
+      }
 
-  /* Screens */
-  .screen { display: none; margin-top: 20px; }
-  .screen.active { display: block; animation: fade .25s ease; }
-  @keyframes fade { from { opacity: 0; transform: translateY(6px);} to {opacity:1; transform:none;} }
+      /* Screens */
+      .screen {
+        display: none;
+        margin-top: 20px;
+      }
+      .screen.active {
+        display: block;
+        animation: fade 0.25s ease;
+      }
+      @keyframes fade {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
 
-  /* Start screen */
-  .card {
-    background: var(--panel); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 28px; box-shadow: var(--shadow);
-  }
-  .card h2 { font-size: 22px; margin-bottom: 8px; }
-  .card .lead { color: var(--muted); margin-bottom: 24px; font-size: 15px; }
-  .opt-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 16px; margin-bottom: 22px; }
-  .field label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
-  .field select, .field input {
-    width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text);
-    padding: 11px 12px; border-radius: 9px; font-size: 14px; font-family: inherit;
-  }
-  .field select:focus, .field input:focus { outline: none; border-color: var(--accent); }
-  .domains { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
-  .dom-row { display: flex; align-items: center; gap: 10px; font-size: 14px; }
-  .dom-row .bar-track { flex: 1; height: 6px; background: var(--bg); border-radius: 4px; overflow: hidden; }
-  .dom-row .bar-fill { height: 100%; border-radius: 4px; }
-  .info-box {
-    background: var(--panel-2); border: 1px solid var(--border); border-left: 3px solid var(--blue);
-    border-radius: 8px; padding: 14px 16px; font-size: 13.5px; color: var(--muted); margin: 18px 0;
-  }
-  .info-box strong { color: var(--text); }
+      /* Start screen */
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 28px;
+        box-shadow: var(--shadow);
+      }
+      .card h2 {
+        font-size: 22px;
+        margin-bottom: 8px;
+      }
+      .card .lead {
+        color: var(--muted);
+        margin-bottom: 24px;
+        font-size: 15px;
+      }
+      .opt-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+        margin-bottom: 22px;
+      }
+      .field label {
+        display: block;
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 8px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .field select,
+      .field input {
+        width: 100%;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        color: var(--text);
+        padding: 11px 12px;
+        border-radius: 9px;
+        font-size: 14px;
+        font-family: inherit;
+      }
+      .field select:focus,
+      .field input:focus {
+        outline: none;
+        border-color: var(--accent);
+      }
+      .domains {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 4px;
+      }
+      .dom-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 14px;
+      }
+      .dom-row .bar-track {
+        flex: 1;
+        height: 6px;
+        background: var(--bg);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+      .dom-row .bar-fill {
+        height: 100%;
+        border-radius: 4px;
+      }
+      .info-box {
+        background: var(--panel-2);
+        border: 1px solid var(--border);
+        border-left: 3px solid var(--blue);
+        border-radius: 8px;
+        padding: 14px 16px;
+        font-size: 13.5px;
+        color: var(--muted);
+        margin: 18px 0;
+      }
+      .info-box strong {
+        color: var(--text);
+      }
 
-  /* Question screen layout */
-  .q-layout { display: grid; grid-template-columns: 1fr 230px; gap: 20px; align-items: start; }
-  @media (max-width: 820px) {
-    .q-layout { grid-template-columns: 1fr; }
-    .q-nav { order: -1; position: static; top: auto; padding: 14px 16px; }
-    .q-nav-toggle { cursor: pointer; }
-    .q-nav-toggle .chevron { display: inline-block; }
-    .q-nav.collapsed .q-nav-toggle { margin-bottom: 0; }
-    .q-nav.collapsed .q-nav-body { display: none; }
-  }
+      /* Question screen layout */
+      .q-layout {
+        display: grid;
+        grid-template-columns: 1fr 230px;
+        gap: 20px;
+        align-items: start;
+      }
+      @media (max-width: 820px) {
+        .q-layout {
+          grid-template-columns: 1fr;
+        }
+        .q-nav {
+          order: -1;
+          position: static;
+          top: auto;
+          padding: 14px 16px;
+        }
+        .q-nav-toggle {
+          cursor: pointer;
+        }
+        .q-nav-toggle .chevron {
+          display: inline-block;
+        }
+        .q-nav.collapsed .q-nav-toggle {
+          margin-bottom: 0;
+        }
+        .q-nav.collapsed .q-nav-body {
+          display: none;
+        }
+      }
 
-  .q-card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 26px 28px; box-shadow: var(--shadow); }
-  .q-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; gap: 12px; flex-wrap: wrap; }
-  .q-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-  .pill { font-size: 11.5px; font-weight: 700; padding: 4px 10px; border-radius: 20px; letter-spacing: .3px; }
-  .pill.qnum { background: var(--panel-2); color: var(--muted); border: 1px solid var(--border); }
-  .pill.dom { color: #1a1a1a; }
-  .pill.multi { background: rgba(68,147,248,.15); color: var(--blue); border: 1px solid rgba(68,147,248,.4); }
-  .flag-btn { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; transition: .15s; }
-  .flag-btn:hover { border-color: var(--yellow); color: var(--yellow); }
-  .flag-btn.flagged { background: rgba(210,153,34,.15); border-color: var(--yellow); color: var(--yellow); }
+      .q-card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 26px 28px;
+        box-shadow: var(--shadow);
+      }
+      .q-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 18px;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .q-meta {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .pill {
+        font-size: 11.5px;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 20px;
+        letter-spacing: 0.3px;
+      }
+      .pill.qnum {
+        background: var(--panel-2);
+        color: var(--muted);
+        border: 1px solid var(--border);
+      }
+      .pill.dom {
+        color: #1a1a1a;
+      }
+      .pill.multi {
+        background: rgba(68, 147, 248, 0.15);
+        color: var(--blue);
+        border: 1px solid rgba(68, 147, 248, 0.4);
+      }
+      .flag-btn {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--muted);
+        padding: 6px 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 600;
+        transition: 0.15s;
+      }
+      .flag-btn:hover {
+        border-color: var(--yellow);
+        color: var(--yellow);
+      }
+      .flag-btn.flagged {
+        background: rgba(210, 153, 34, 0.15);
+        border-color: var(--yellow);
+        color: var(--yellow);
+      }
 
-  .q-text { font-size: 17px; line-height: 1.6; margin-bottom: 22px; }
+      .q-text {
+        font-size: 17px;
+        line-height: 1.6;
+        margin-bottom: 22px;
+      }
 
-  .options { display: flex; flex-direction: column; gap: 12px; }
-  .option {
-    display: flex; align-items: flex-start; gap: 13px; padding: 15px 16px;
-    background: var(--bg); border: 1.5px solid var(--border); border-radius: 10px;
-    cursor: pointer; transition: .14s; user-select: none;
-  }
-  .option:hover { border-color: var(--accent); background: var(--panel-2); }
-  .option.selected { border-color: var(--accent); background: rgba(255,153,0,.08); }
-  .option .marker {
-    width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border);
-    flex-shrink: 0; display: grid; place-items: center; font-size: 12px; font-weight: 800;
-    color: var(--muted); margin-top: 1px; transition: .14s;
-  }
-  .option.multi .marker { border-radius: 6px; }
-  .option.selected .marker { border-color: var(--accent); background: var(--accent); color: #1a1a1a; }
-  .option .label { flex: 1; font-size: 14.5px; }
+      .options {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .option {
+        display: flex;
+        align-items: flex-start;
+        gap: 13px;
+        padding: 15px 16px;
+        background: var(--bg);
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        cursor: pointer;
+        transition: 0.14s;
+        user-select: none;
+      }
+      .option:hover {
+        border-color: var(--accent);
+        background: var(--panel-2);
+      }
+      .option.selected {
+        border-color: var(--accent);
+        background: rgba(255, 153, 0, 0.08);
+      }
+      .option .marker {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        border: 2px solid var(--border);
+        flex-shrink: 0;
+        display: grid;
+        place-items: center;
+        font-size: 12px;
+        font-weight: 800;
+        color: var(--muted);
+        margin-top: 1px;
+        transition: 0.14s;
+      }
+      .option.multi .marker {
+        border-radius: 6px;
+      }
+      .option.selected .marker {
+        border-color: var(--accent);
+        background: var(--accent);
+        color: #1a1a1a;
+      }
+      .option .label {
+        flex: 1;
+        font-size: 14.5px;
+      }
 
-  .q-actions { display: flex; align-items: center; justify-content: space-between; margin-top: 26px; gap: 12px; }
+      .q-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 26px;
+        gap: 12px;
+      }
 
-  /* Nav panel */
-  .q-nav { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); position: sticky; top: 92px; }
-  .q-nav-toggle {
-    display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%;
-    background: none; border: none; padding: 0; margin-bottom: 14px; cursor: default; font-family: inherit;
-    font-size: 12px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); font-weight: 700;
-  }
-  .q-nav-toggle .chevron { display: none; transition: transform .2s ease; font-size: 11px; }
-  .q-nav:not(.collapsed) .q-nav-toggle .chevron { transform: rotate(180deg); }
-  .nav-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; }
-  .nav-cell {
-    aspect-ratio: 1; border-radius: 7px; border: 1.5px solid var(--border); background: var(--bg);
-    color: var(--muted); font-size: 12.5px; font-weight: 700; cursor: pointer; display: grid; place-items: center; transition: .12s; position: relative;
-  }
-  .nav-cell:hover { border-color: var(--accent); }
-  .nav-cell.answered { background: var(--panel-2); color: var(--text); border-color: #3a4250; }
-  .nav-cell.current { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(255,153,0,.25); color: var(--accent); }
-  .nav-cell.flagged::after { content: ""; position: absolute; top: 3px; right: 3px; width: 7px; height: 7px; border-radius: 50%; background: var(--yellow); }
-  .nav-legend { margin-top: 14px; display: flex; flex-direction: column; gap: 7px; font-size: 12px; color: var(--muted); }
-  .nav-legend span { display: flex; align-items: center; gap: 8px; }
-  .dot { width: 11px; height: 11px; border-radius: 3px; border: 1.5px solid var(--border); }
-  .dot.answered { background: var(--panel-2); border-color:#3a4250; }
-  .dot.flag { background: var(--yellow); border: none; border-radius: 50%; width: 9px; height: 9px; }
+      /* Nav panel */
+      .q-nav {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 18px;
+        box-shadow: var(--shadow);
+        position: sticky;
+        top: 92px;
+      }
+      .q-nav-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        width: 100%;
+        background: none;
+        border: none;
+        padding: 0;
+        margin-bottom: 14px;
+        cursor: default;
+        font-family: inherit;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--muted);
+        font-weight: 700;
+      }
+      .q-nav-toggle .chevron {
+        display: none;
+        transition: transform 0.2s ease;
+        font-size: 11px;
+      }
+      .q-nav:not(.collapsed) .q-nav-toggle .chevron {
+        transform: rotate(180deg);
+      }
+      .nav-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 7px;
+      }
+      .nav-cell {
+        aspect-ratio: 1;
+        border-radius: 7px;
+        border: 1.5px solid var(--border);
+        background: var(--bg);
+        color: var(--muted);
+        font-size: 12.5px;
+        font-weight: 700;
+        cursor: pointer;
+        display: grid;
+        place-items: center;
+        transition: 0.12s;
+        position: relative;
+      }
+      .nav-cell:hover {
+        border-color: var(--accent);
+      }
+      .nav-cell.answered {
+        background: var(--panel-2);
+        color: var(--text);
+        border-color: #3a4250;
+      }
+      .nav-cell.current {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 2px rgba(255, 153, 0, 0.25);
+        color: var(--accent);
+      }
+      .nav-cell.flagged::after {
+        content: '';
+        position: absolute;
+        top: 3px;
+        right: 3px;
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--yellow);
+      }
+      .nav-legend {
+        margin-top: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .nav-legend span {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .dot {
+        width: 11px;
+        height: 11px;
+        border-radius: 3px;
+        border: 1.5px solid var(--border);
+      }
+      .dot.answered {
+        background: var(--panel-2);
+        border-color: #3a4250;
+      }
+      .dot.flag {
+        background: var(--yellow);
+        border: none;
+        border-radius: 50%;
+        width: 9px;
+        height: 9px;
+      }
 
-  /* Results */
-  .score-hero { text-align: center; padding: 14px 0 26px; }
-  .score-ring {
-    width: 180px; height: 180px; margin: 0 auto 18px; border-radius: 50%;
-    display: grid; place-items: center; position: relative;
-  }
-  .score-ring .inner { position: absolute; inset: 14px; background: var(--panel); border-radius: 50%; display: grid; place-items: center; flex-direction: column; }
-  .score-ring .pct { font-size: 44px; font-weight: 800; line-height: 1; }
-  .score-ring .sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
-  .verdict { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
-  .verdict.pass { color: var(--green); }
-  .verdict.fail { color: var(--red); }
-  .verdict-sub { color: var(--muted); font-size: 14px; }
+      /* Results */
+      .score-hero {
+        text-align: center;
+        padding: 14px 0 26px;
+      }
+      .score-ring {
+        width: 180px;
+        height: 180px;
+        margin: 0 auto 18px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        position: relative;
+      }
+      .score-ring .inner {
+        position: absolute;
+        inset: 14px;
+        background: var(--panel);
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        flex-direction: column;
+      }
+      .score-ring .pct {
+        font-size: 44px;
+        font-weight: 800;
+        line-height: 1;
+      }
+      .score-ring .sub {
+        font-size: 13px;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+      .verdict {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 6px;
+      }
+      .verdict.pass {
+        color: var(--green);
+      }
+      .verdict.fail {
+        color: var(--red);
+      }
+      .verdict-sub {
+        color: var(--muted);
+        font-size: 14px;
+      }
 
-  .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: 14px; margin: 24px 0; }
-  .stat { background: var(--panel-2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; text-align: center; }
-  .stat .num { font-size: 26px; font-weight: 800; }
-  .stat .lbl { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; margin-top: 3px; }
+      .stats-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 14px;
+        margin: 24px 0;
+      }
+      .stat {
+        background: var(--panel-2);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 16px;
+        text-align: center;
+      }
+      .stat .num {
+        font-size: 26px;
+        font-weight: 800;
+      }
+      .stat .lbl {
+        font-size: 12px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        margin-top: 3px;
+      }
 
-  .domain-breakdown { margin: 24px 0; }
-  .domain-breakdown h3, .review-section h3 { font-size: 15px; margin-bottom: 14px; }
-  .db-row { margin-bottom: 14px; }
-  .db-head { display: flex; justify-content: space-between; font-size: 13.5px; margin-bottom: 6px; }
-  .db-track { height: 9px; background: var(--bg); border-radius: 5px; overflow: hidden; border: 1px solid var(--border); }
-  .db-fill { height: 100%; border-radius: 5px; transition: width .6s ease; }
+      .domain-breakdown {
+        margin: 24px 0;
+      }
+      .domain-breakdown h3,
+      .review-section h3 {
+        font-size: 15px;
+        margin-bottom: 14px;
+      }
+      .db-row {
+        margin-bottom: 14px;
+      }
+      .db-head {
+        display: flex;
+        justify-content: space-between;
+        font-size: 13.5px;
+        margin-bottom: 6px;
+      }
+      .db-track {
+        height: 9px;
+        background: var(--bg);
+        border-radius: 5px;
+        overflow: hidden;
+        border: 1px solid var(--border);
+      }
+      .db-fill {
+        height: 100%;
+        border-radius: 5px;
+        transition: width 0.6s ease;
+      }
 
-  .review-item { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; margin-bottom: 14px; }
-  .review-item.correct { border-left: 3px solid var(--green); }
-  .review-item.wrong { border-left: 3px solid var(--red); }
-  .review-item.skipped { border-left: 3px solid var(--muted); }
-  .ri-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
-  .ri-q { font-size: 15px; margin-bottom: 14px; line-height: 1.55; }
-  .ri-opt { padding: 9px 13px; border-radius: 8px; font-size: 13.5px; margin-bottom: 7px; border: 1px solid transparent; display: flex; gap: 9px; align-items: flex-start; }
-  .ri-opt .tag { font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
-  .ri-opt.is-correct { background: rgba(63,185,80,.12); border-color: rgba(63,185,80,.35); }
-  .ri-opt.is-yourwrong { background: rgba(248,81,73,.12); border-color: rgba(248,81,73,.35); }
-  .ri-opt.neutral { color: var(--muted); }
-  .ri-expl { background: var(--panel-2); border-radius: 8px; padding: 12px 14px; font-size: 13.5px; color: var(--muted); margin-top: 10px; border-left: 3px solid var(--blue); }
-  .ri-expl strong { color: var(--text); }
+      .review-item {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 18px 20px;
+        margin-bottom: 14px;
+      }
+      .review-item.correct {
+        border-left: 3px solid var(--green);
+      }
+      .review-item.wrong {
+        border-left: 3px solid var(--red);
+      }
+      .review-item.skipped {
+        border-left: 3px solid var(--muted);
+      }
+      .ri-head {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+      }
+      .ri-q {
+        font-size: 15px;
+        margin-bottom: 14px;
+        line-height: 1.55;
+      }
+      .ri-opt {
+        padding: 9px 13px;
+        border-radius: 8px;
+        font-size: 13.5px;
+        margin-bottom: 7px;
+        border: 1px solid transparent;
+        display: flex;
+        gap: 9px;
+        align-items: flex-start;
+      }
+      .ri-opt .tag {
+        font-size: 11px;
+        font-weight: 700;
+        flex-shrink: 0;
+        margin-top: 1px;
+      }
+      .ri-opt.is-correct {
+        background: rgba(63, 185, 80, 0.12);
+        border-color: rgba(63, 185, 80, 0.35);
+      }
+      .ri-opt.is-yourwrong {
+        background: rgba(248, 81, 73, 0.12);
+        border-color: rgba(248, 81, 73, 0.35);
+      }
+      .ri-opt.neutral {
+        color: var(--muted);
+      }
+      .ri-expl {
+        background: var(--panel-2);
+        border-radius: 8px;
+        padding: 12px 14px;
+        font-size: 13.5px;
+        color: var(--muted);
+        margin-top: 10px;
+        border-left: 3px solid var(--blue);
+      }
+      .ri-expl strong {
+        color: var(--text);
+      }
 
-  .export-box { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-top: 24px; }
-  .export-box h3 { font-size: 16px; margin-bottom: 6px; }
-  .export-box p { color: var(--muted); font-size: 14px; margin-bottom: 16px; }
-  textarea.prompt {
-    width: 100%; min-height: 160px; background: var(--bg); border: 1px solid var(--border);
-    color: var(--text); border-radius: 9px; padding: 14px; font-family: ui-monospace, "SF Mono", Menlo, monospace;
-    font-size: 12.5px; resize: vertical; line-height: 1.5;
-  }
-  .export-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 14px; }
-  .toast {
-    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
-    background: var(--green); color: #03210c; padding: 12px 22px; border-radius: 10px;
-    font-weight: 700; font-size: 14px; opacity: 0; pointer-events: none; transition: .3s; z-index: 200;
-  }
-  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-  .filter-bar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
-  .filter-bar .btn.small.active { background: var(--accent); color: #1a1a1a; border-color: var(--accent); }
-  .hint { font-size: 12.5px; color: var(--muted); margin-top: 8px; }
-  a.link { color: var(--blue); text-decoration: none; }
-  a.link:hover { text-decoration: underline; }
-</style>
-</head>
-<body>
-<div class="app">
-
-  <header class="bar">
-    <div class="brand">
-      <div class="logo">AWS</div>
-      <div>
-        <h1>Solutions Architect Associate · SAA-C03</h1>
-        <p id="bar-sub">Interactive exam practice · 2026</p>
-      </div>
-    </div>
-    <div class="bar-right">
-      <span class="progress-mini" id="progressMini"></span>
-      <span class="timer" id="timer" style="display:none">--:--</span>
-    </div>
-  </header>
-
-  <!-- START SCREEN -->
-  <section class="screen active" id="screen-start">
-    <div class="card">
-      <h2>Prepare for your mock exam</h2>
-      <p class="lead">Configure your session, then work through the questions just like on exam day. Your progress is saved automatically.</p>
-
-      <div class="opt-grid">
-        <div class="field">
-          <label for="numQ">Number of questions</label>
-          <select id="numQ">
-            <option value="10">10 questions (quick)</option>
-            <option value="20">20 questions</option>
-            <option value="30">30 questions</option>
-            <option value="0" selected>All (full bank)</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="mode">Mode</label>
-          <select id="mode">
-            <option value="exam" selected>Exam (results at the end)</option>
-            <option value="practice">Practice (immediate feedback)</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="timerOpt">Timer</label>
-          <select id="timerOpt">
-            <option value="0" selected>Disabled</option>
-            <option value="auto">Realistic (~2 min/question)</option>
-            <option value="60">60 minutes</option>
-            <option value="130">130 minutes (real exam)</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="shuffle">Order</label>
-          <select id="shuffle">
-            <option value="1" selected>Shuffled (questions & answers)</option>
-            <option value="0">Fixed order</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="domain-breakdown">
-        <h3>Coverage by domain (current bank)</h3>
-        <div class="domains" id="domainStats"></div>
-      </div>
-
-      <div class="info-box">
-        <strong>💡 The best part:</strong> at the end, a button generates a <strong>ready-to-paste prompt</strong> containing all your answers. Paste it into Claude → you get a detailed analysis of your mistakes and personalized advice. Your progress is also saved locally (you can close the tab and resume later).
-      </div>
-
-      <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
-        <button class="btn primary" id="btnStart">Start the exam →</button>
-        <button class="btn ghost" id="btnResume" style="display:none">Resume saved session</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- QUESTION SCREEN -->
-  <section class="screen" id="screen-quiz">
-    <div class="q-layout">
-      <div class="q-card">
-        <div class="q-top">
-          <div class="q-meta">
-            <span class="pill qnum" id="qNum">Question 1 / 45</span>
-            <span class="pill dom" id="qDom">Domain</span>
-            <span class="pill multi" id="qMulti" style="display:none">Multiple choice</span>
+      .export-box {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 24px;
+        margin-top: 24px;
+      }
+      .export-box h3 {
+        font-size: 16px;
+        margin-bottom: 6px;
+      }
+      .export-box p {
+        color: var(--muted);
+        font-size: 14px;
+        margin-bottom: 16px;
+      }
+      textarea.prompt {
+        width: 100%;
+        min-height: 160px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        color: var(--text);
+        border-radius: 9px;
+        padding: 14px;
+        font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+        font-size: 12.5px;
+        resize: vertical;
+        line-height: 1.5;
+      }
+      .export-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 14px;
+      }
+      .toast {
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%) translateY(20px);
+        background: var(--green);
+        color: #03210c;
+        padding: 12px 22px;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 14px;
+        opacity: 0;
+        pointer-events: none;
+        transition: 0.3s;
+        z-index: 200;
+      }
+      .toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+      .filter-bar {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+      }
+      .filter-bar .btn.small.active {
+        background: var(--accent);
+        color: #1a1a1a;
+        border-color: var(--accent);
+      }
+      .hint {
+        font-size: 12.5px;
+        color: var(--muted);
+        margin-top: 8px;
+      }
+      a.link {
+        color: var(--blue);
+        text-decoration: none;
+      }
+      a.link:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <header class="bar">
+        <div class="brand">
+          <div class="logo">AWS</div>
+          <div>
+            <h1>Solutions Architect Associate · SAA-C03</h1>
+            <p id="bar-sub">Interactive exam practice · 2026</p>
           </div>
-          <button class="flag-btn" id="flagBtn">⚑ Flag for review</button>
         </div>
-        <div class="q-text" id="qText"></div>
-        <div class="options" id="options"></div>
-        <div id="practiceFeedback"></div>
-        <div class="q-actions">
-          <button class="btn ghost" id="btnPrev">← Previous</button>
-          <div style="display:flex; gap:12px;">
-            <button class="btn" id="btnNext">Next →</button>
-            <button class="btn primary" id="btnFinish" style="display:none">Finish exam ✓</button>
+        <div class="bar-right">
+          <span class="progress-mini" id="progressMini"></span>
+          <span class="timer" id="timer" style="display: none">--:--</span>
+        </div>
+      </header>
+
+      <!-- START SCREEN -->
+      <section class="screen active" id="screen-start">
+        <div class="card">
+          <h2>Prepare for your mock exam</h2>
+          <p class="lead">
+            Configure your session, then work through the questions just like on exam day. Your
+            progress is saved automatically.
+          </p>
+
+          <div class="opt-grid">
+            <div class="field">
+              <label for="numQ">Number of questions</label>
+              <select id="numQ">
+                <option value="10">10 questions (quick)</option>
+                <option value="20">20 questions</option>
+                <option value="30">30 questions</option>
+                <option value="0" selected>All (full bank)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="mode">Mode</label>
+              <select id="mode">
+                <option value="exam" selected>Exam (results at the end)</option>
+                <option value="practice">Practice (immediate feedback)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="timerOpt">Timer</label>
+              <select id="timerOpt">
+                <option value="0" selected>Disabled</option>
+                <option value="auto">Realistic (~2 min/question)</option>
+                <option value="60">60 minutes</option>
+                <option value="130">130 minutes (real exam)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="shuffle">Order</label>
+              <select id="shuffle">
+                <option value="1" selected>Shuffled (questions & answers)</option>
+                <option value="0">Fixed order</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="domain-breakdown">
+            <h3>Coverage by domain (current bank)</h3>
+            <div class="domains" id="domainStats"></div>
+          </div>
+
+          <div class="info-box">
+            <strong>💡 The best part:</strong> at the end, a button generates a
+            <strong>ready-to-paste prompt</strong> containing all your answers. Paste it into Claude
+            → you get a detailed analysis of your mistakes and personalized advice. Your progress is
+            also saved locally (you can close the tab and resume later).
+          </div>
+
+          <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center">
+            <button class="btn primary" id="btnStart">Start the exam →</button>
+            <button class="btn ghost" id="btnResume" style="display: none">
+              Resume saved session
+            </button>
           </div>
         </div>
-      </div>
+      </section>
 
-      <aside class="q-nav collapsed">
-        <button class="q-nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navBody">
-          <span>Navigation</span>
-          <span class="chevron" aria-hidden="true">▾</span>
-        </button>
-        <div class="q-nav-body" id="navBody">
-          <div class="nav-grid" id="navGrid"></div>
-          <div class="nav-legend">
-            <span><i class="dot answered"></i> Answered</span>
-            <span><i class="dot"></i> Unanswered</span>
-            <span><i class="dot flag"></i> Flagged</span>
+      <!-- QUESTION SCREEN -->
+      <section class="screen" id="screen-quiz">
+        <div class="q-layout">
+          <div class="q-card">
+            <div class="q-top">
+              <div class="q-meta">
+                <span class="pill qnum" id="qNum">Question 1 / 45</span>
+                <span class="pill dom" id="qDom">Domain</span>
+                <span class="pill multi" id="qMulti" style="display: none">Multiple choice</span>
+              </div>
+              <button class="flag-btn" id="flagBtn">⚑ Flag for review</button>
+            </div>
+            <div class="q-text" id="qText"></div>
+            <div class="options" id="options"></div>
+            <div id="practiceFeedback"></div>
+            <div class="q-actions">
+              <button class="btn ghost" id="btnPrev">← Previous</button>
+              <div style="display: flex; gap: 12px">
+                <button class="btn" id="btnNext">Next →</button>
+                <button class="btn primary" id="btnFinish" style="display: none">
+                  Finish exam ✓
+                </button>
+              </div>
+            </div>
           </div>
-          <button class="btn primary small" id="btnFinishSide" style="width:100%; margin-top:16px; justify-content:center;">Finish ✓</button>
-        </div>
-      </aside>
-    </div>
-  </section>
 
-  <!-- ÉCRAN RÉSULTATS -->
-  <section class="screen" id="screen-results">
-    <div class="card">
-      <div class="score-hero">
-        <div class="score-ring" id="scoreRing">
-          <div class="inner">
-            <div class="pct" id="scorePct">0%</div>
-            <div class="sub" id="scoreFrac">0 / 0</div>
+          <aside class="q-nav collapsed">
+            <button
+              class="q-nav-toggle"
+              id="navToggle"
+              aria-expanded="false"
+              aria-controls="navBody"
+            >
+              <span>Navigation</span>
+              <span class="chevron" aria-hidden="true">▾</span>
+            </button>
+            <div class="q-nav-body" id="navBody">
+              <div class="nav-grid" id="navGrid"></div>
+              <div class="nav-legend">
+                <span><i class="dot answered"></i> Answered</span>
+                <span><i class="dot"></i> Unanswered</span>
+                <span><i class="dot flag"></i> Flagged</span>
+              </div>
+              <button
+                class="btn primary small"
+                id="btnFinishSide"
+                style="width: 100%; margin-top: 16px; justify-content: center"
+              >
+                Finish ✓
+              </button>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ÉCRAN RÉSULTATS -->
+      <section class="screen" id="screen-results">
+        <div class="card">
+          <div class="score-hero">
+            <div class="score-ring" id="scoreRing">
+              <div class="inner">
+                <div class="pct" id="scorePct">0%</div>
+                <div class="sub" id="scoreFrac">0 / 0</div>
+              </div>
+            </div>
+            <div class="verdict" id="verdict">—</div>
+            <div class="verdict-sub" id="verdictSub"></div>
+          </div>
+
+          <div class="stats-row" id="statsRow"></div>
+
+          <div class="domain-breakdown">
+            <h3>Performance by domain</h3>
+            <div id="resultDomains"></div>
           </div>
         </div>
-        <div class="verdict" id="verdict">—</div>
-        <div class="verdict-sub" id="verdictSub"></div>
-      </div>
 
-      <div class="stats-row" id="statsRow"></div>
+        <div class="export-box">
+          <h3>🎯 Generate my advice report</h3>
+          <p>
+            Copy this prompt and paste it into Claude. You'll get a detailed analysis of every
+            mistake, your weak areas by domain, and a personalized study plan.
+          </p>
+          <textarea class="prompt" id="promptOut" readonly></textarea>
+          <div class="export-actions">
+            <button class="btn primary" id="btnCopyPrompt">📋 Copy the prompt for Claude</button>
+            <button class="btn" id="btnDownloadJson">⬇ Download results (JSON)</button>
+            <button class="btn ghost" id="btnSaveFile">💾 Write to a file (Chrome)</button>
+          </div>
+          <p class="hint">
+            The "Write to a file" button uses the File System Access API (Chrome/Edge) to save
+            <code>results.json</code> directly to your disk.
+          </p>
+        </div>
 
-      <div class="domain-breakdown">
-        <h3>Performance by domain</h3>
-        <div id="resultDomains"></div>
-      </div>
+        <div class="review-section card" style="margin-top: 24px">
+          <h3>Detailed review</h3>
+          <div class="filter-bar">
+            <button class="btn small active" data-filter="all">All</button>
+            <button class="btn small" data-filter="wrong">Mistakes only</button>
+            <button class="btn small" data-filter="flagged">Flagged</button>
+          </div>
+          <div id="reviewList"></div>
+        </div>
+
+        <div style="margin-top: 24px; display: flex; gap: 12px; flex-wrap: wrap">
+          <button class="btn primary" id="btnRestart">↻ New exam</button>
+          <button class="btn ghost" id="btnRetryWrong">Retry my mistakes</button>
+        </div>
+      </section>
     </div>
 
-    <div class="export-box">
-      <h3>🎯 Generate my advice report</h3>
-      <p>Copy this prompt and paste it into Claude. You'll get a detailed analysis of every mistake, your weak areas by domain, and a personalized study plan.</p>
-      <textarea class="prompt" id="promptOut" readonly></textarea>
-      <div class="export-actions">
-        <button class="btn primary" id="btnCopyPrompt">📋 Copy the prompt for Claude</button>
-        <button class="btn" id="btnDownloadJson">⬇ Download results (JSON)</button>
-        <button class="btn ghost" id="btnSaveFile">💾 Write to a file (Chrome)</button>
-      </div>
-      <p class="hint">The "Write to a file" button uses the File System Access API (Chrome/Edge) to save <code>results.json</code> directly to your disk.</p>
-    </div>
+    <div class="toast" id="toast">Copied!</div>
 
-    <div class="review-section card" style="margin-top:24px;">
-      <h3>Detailed review</h3>
-      <div class="filter-bar">
-        <button class="btn small active" data-filter="all">All</button>
-        <button class="btn small" data-filter="wrong">Mistakes only</button>
-        <button class="btn small" data-filter="flagged">Flagged</button>
-      </div>
-      <div id="reviewList"></div>
-    </div>
-
-    <div style="margin-top:24px; display:flex; gap:12px; flex-wrap:wrap;">
-      <button class="btn primary" id="btnRestart">↻ New exam</button>
-      <button class="btn ghost" id="btnRetryWrong">Retry my mistakes</button>
-    </div>
-  </section>
-
-</div>
-
-<div class="toast" id="toast">Copied!</div>
-
-<script src="questions.js"></script>
-<script src="app.js"></script>
-</body>
+    <script src="questions.js"></script>
+    <script src="app.js"></script>
+  </body>
 </html>
