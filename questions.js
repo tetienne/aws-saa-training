@@ -598,7 +598,7 @@ const QUESTIONS = [
     "multi": true,
     "options": [
       "Attach an IAM role to the instances through an instance profile, and delete the access keys from the configuration file and from IAM.",
-      "Store the access keys in AWS Secrets Manager and have the application retrieve them at startup.",
+      "Store the access keys in AWS Secrets Manager with a rotation schedule, and have the application retrieve them at startup instead of reading the configuration file.",
       "Replace the wildcard policy with a policy that allows only the required actions on the specific bucket and table ARNs.",
       "Attach a service control policy to the account that denies s3:DeleteBucket and dynamodb:DeleteTable.",
       "Create an AWS Config rule that reports IAM users whose access keys are older than 90 days."
@@ -858,7 +858,7 @@ const QUESTIONS = [
     "options": [
       "Store the password in an environment variable on the instance and restrict who can read the process environment.",
       "Enable IAM database authentication on the DB instance and have the application generate a short-lived authentication token for each connection.",
-      "Store the password in a file on an encrypted Amazon EBS volume with file permissions restricted to the application user.",
+      "Store the password in a file on an Amazon EBS volume that is encrypted with a customer managed AWS KMS key, with the file permissions restricted to the application user.",
       "Store the credentials in AWS Secrets Manager, enable a rotation schedule for them, and have the application retrieve them at runtime.",
       "Store the password as a standard String parameter in AWS Systems Manager Parameter Store and read it at startup."
     ],
@@ -1206,10 +1206,10 @@ const QUESTIONS = [
     "ts": "1.3",
     "q": "A company has thousands of Amazon S3 buckets spread across the member accounts of its AWS Organizations organization. The compliance team must know, on an ongoing basis, which buckets hold sensitive data such as credit card numbers or health identifiers. The results must be centralized in one security account, and account owners must not have to configure anything, including in accounts created later. Which solution meets these requirements?",
     "options": [
-      "Enable server access logging on every bucket and analyze the logs with Amazon Athena.",
-      "Run an AWS Glue crawler over every bucket and inspect the resulting Data Catalog schemas.",
+      "Enable server access logging on every bucket, and analyze the logs with Amazon Athena to identify the objects that hold sensitive data.",
+      "Run an AWS Glue crawler over every bucket on a schedule, inspect the resulting AWS Glue Data Catalog schemas for the columns that hold sensitive data, and copy the findings into the security account.",
       "Designate a delegated administrator account for Amazon Macie, enable Macie for the organization with automatic enablement for new accounts, and configure automated sensitive data discovery.",
-      "Enable Amazon GuardDuty S3 Protection in each account and review the findings in the management account."
+      "Enable Amazon GuardDuty S3 Protection in each account, and review the findings from the management account of the organization."
     ],
     "correct": 2,
     "explanation":
@@ -1251,10 +1251,10 @@ const QUESTIONS = [
     "ts": "1.3",
     "q": "A company encrypts objects in an Amazon S3 bucket with a customer managed AWS KMS key in the production account. A partner application running in a second AWS account must be able to read those objects. The security team wants the production account to keep control of the key and to be able to revoke the partner's ability to decrypt at any time from a single place. Which solution meets these requirements?",
     "options": [
-      "Copy the key material of the customer managed key into a new key created in the partner account.",
+      "Copy the key material of the customer managed key into a new AWS KMS key that is created in the partner account, and let the partner manage the key policy there.",
       "Update the KMS key policy to allow the partner role to call kms:Decrypt, have the partner account grant that role kms:Decrypt on the key in an IAM policy, and grant the role access to the objects in the bucket policy.",
-      "Switch the bucket to server-side encryption with Amazon S3 managed keys so that the partner needs no key permissions.",
-      "Attach an IAM policy in the partner account that allows kms:Decrypt on the production key ARN."
+      "Switch the bucket to server-side encryption with Amazon S3 managed keys so that the partner needs no AWS KMS permissions at all, and grant the partner role access to the objects in the bucket policy of the production account.",
+      "Attach an IAM policy in the partner account that allows kms:Decrypt on the production key ARN, and grant the partner role access to the objects in the bucket policy."
     ],
     "correct": 1,
     "explanation":
@@ -1326,10 +1326,10 @@ const QUESTIONS = [
     "ts": "1.3",
     "q": "An existing Amazon RDS for MySQL database instance was created several years ago without encryption. A new compliance rule requires that the data be encrypted at rest with a customer managed AWS KMS key. The application can tolerate a short maintenance window, and the team wants to keep the same data set and the same database engine version. What should a solutions architect do to accomplish this?",
     "options": [
-      "Modify the database instance and enable the encryption option with the customer managed key.",
-      "Enable encryption on the underlying Amazon EBS volumes of the database instance.",
+      "Modify the database instance, and enable the encryption option with the customer managed key during the next maintenance window.",
+      "Enable encryption on the underlying Amazon EBS volumes of the database instance from the Amazon EC2 console, and reboot the instance so that it reattaches the encrypted volumes.",
       "Take a snapshot of the instance, copy the snapshot while specifying the customer managed key, restore a new instance from the encrypted copy, and point the application at it.",
-      "Create a read replica with encryption enabled and promote it to be the primary instance."
+      "Create a read replica with encryption enabled, and promote the replica to be the primary instance once it has caught up with the source."
     ],
     "correct": 2,
     "explanation":
@@ -1358,10 +1358,10 @@ const QUESTIONS = [
     "multi": true,
     "options": [
       "Enable S3 Versioning on the bucket so that overwritten and deleted objects can be recovered.",
-      "Enable S3 Replication to a bucket in a second AWS Region.",
+      "Enable S3 Replication to a bucket in a second AWS Region so that a copy of every object is kept in a destination bucket that the delete request did not target.",
       "Enable MFA delete on the bucket so that permanently deleting an object version requires a multi-factor authentication code.",
-      "Enable S3 Block Public Access on the bucket.",
-      "Add a lifecycle rule that expires noncurrent object versions after seven days."
+      "Enable S3 Block Public Access on the bucket so that no object can be reached anonymously.",
+      "Add an S3 Lifecycle rule that expires noncurrent object versions after seven days to keep the storage cost of the retained versions down."
     ],
     "correct": [0, 2],
     "explanation":
@@ -1630,9 +1630,9 @@ const QUESTIONS = [
     "ts": "2.1",
     "q": "Some messages in an Amazon SQS queue fail every time they are processed and are received again and again, which delays the rest of the queue. The team must set these messages aside for later analysis. Which solution meets these requirements?",
     "options": [
-      "Increase the visibility timeout of the queue.",
-      "Enable long polling by setting a receive message wait time on the queue.",
-      "Reduce the message retention period of the queue.",
+      "Increase the visibility timeout of the queue so that a failing message stays hidden for longer after each receive.",
+      "Enable long polling by setting a receive message wait time on the queue so that a consumer waits for a message to arrive instead of returning an empty response immediately.",
+      "Reduce the message retention period of the queue so that a message that cannot be processed is deleted sooner.",
       "Configure a redrive policy on the queue that moves a message to a dead-letter queue after a set maxReceiveCount."
     ],
     "correct": 3,
@@ -1677,10 +1677,10 @@ const QUESTIONS = [
     "multi": true,
     "options": [
       "Configure a dead-letter queue on the Amazon SQS queue with a redrive policy so that messages the function repeatedly fails to process are retained.",
-      "Convert the SNS topic to a FIFO topic and enable content-based deduplication.",
+      "Convert the Amazon SNS topic to a FIFO topic, enable content-based deduplication, and have the function acknowledge each notification in order.",
       "Subscribe an Amazon SQS queue to the topic and have the Lambda function consume that queue.",
-      "Increase the amount of memory allocated to the Lambda function.",
-      "Shorten the DNS time to live of the subscriber endpoint."
+      "Increase the amount of memory allocated to the AWS Lambda function so that it has proportionally more CPU and times out less often.",
+      "Shorten the DNS time to live of the subscriber endpoint so that Amazon SNS resolves a new address sooner after a failure."
     ],
     "correct": [0, 2],
     "explanation":
@@ -1935,9 +1935,9 @@ const QUESTIONS = [
     "q": "Consumers of an Amazon SQS standard queue need about 4 minutes to process a message, and the queue uses the default visibility timeout. The same message is frequently processed by more than one consumer at the same time. Which solution meets the requirement that a message is processed once per receive?",
     "options": [
       "Increase the visibility timeout of the queue so that it is longer than the time a consumer needs to process and delete a message.",
-      "Enable long polling by setting a receive message wait time on the queue.",
-      "Reduce the number of consumers to one.",
-      "Replace the queue with an Amazon SNS topic that the consumers subscribe to."
+      "Enable long polling by setting a receive message wait time on the queue so that a consumer waits for a message to arrive before it returns.",
+      "Reduce the number of consumers to one so that no other consumer can receive the message while it is being processed.",
+      "Replace the queue with an Amazon SNS topic that the consumers subscribe to, so that each consumer receives its own copy of every message that is published."
     ],
     "correct": 0,
     "explanation":
@@ -2024,10 +2024,10 @@ const QUESTIONS = [
     "ts": "2.1",
     "q": "When an Auto Scaling group scales in, instances are terminated before a script can copy their local log files to Amazon S3. The logs must be copied before each instance is terminated. Which solution meets these requirements?",
     "options": [
-      "Increase the cooldown period of the Auto Scaling group.",
+      "Increase the cooldown period of the Auto Scaling group so that the group waits longer between scaling activities before it terminates an instance.",
       "Add a termination lifecycle hook to the Auto Scaling group, run the upload while the instance is in the Terminating:Wait state, and call CompleteLifecycleAction when the upload finishes.",
-      "Suspend the Terminate process of the Auto Scaling group.",
-      "Schedule the upload script to run every 12 hours on each instance."
+      "Suspend the Terminate process of the Auto Scaling group, and have a scheduled job resume the process once it has confirmed that the log files of the instances that are marked for termination are already in Amazon S3.",
+      "Schedule the upload script to run every 12 hours on each instance through a cron job, and accept the loss of the log lines that are written after the last successful run."
     ],
     "correct": 1,
     "explanation":
@@ -2116,10 +2116,10 @@ const QUESTIONS = [
     "multi": true,
     "options": [
       "Enable S3 Versioning on the bucket.",
-      "Change the storage class of the objects in the bucket to S3 One Zone-IA.",
+      "Change the storage class of the objects in the bucket to S3 One Zone-IA so that the cost of storing the retained object versions is lower.",
       "Add a bucket policy that denies s3:DeleteObjectVersion and s3:PutBucketVersioning to every principal except a dedicated break-glass IAM role.",
-      "Enable S3 Transfer Acceleration on the bucket.",
-      "Enable S3 server access logging for the bucket."
+      "Enable S3 Transfer Acceleration on the bucket so that requests are routed through an edge location instead of directly to the bucket.",
+      "Enable S3 server access logging for the bucket so that every delete request is recorded with the identity that issued it."
     ],
     "correct": [0, 2],
     "explanation":
@@ -2499,7 +2499,7 @@ const QUESTIONS = [
       "Convert the RDS for MySQL database to a Multi-AZ deployment in the primary Region.",
       "Create a cross-Region read replica of the RDS for MySQL database in the second Region and promote it during a failover.",
       "Create Route 53 weighted records that send half of the user traffic to each of the two Regions at all times.",
-      "Create a CloudWatch alarm on the load balancer and notify the operations team through Amazon SNS when it triggers.",
+      "Create an Amazon CloudWatch alarm on the load balancer, and notify the operations team through Amazon SNS so that an engineer can update the DNS records when it triggers.",
       "Create Route 53 failover records for the two load balancers, with a health check associated with the primary record."
     ],
     "correct": [1, 4],
@@ -2936,9 +2936,9 @@ const QUESTIONS = [
     "ts": "3.3",
     "q": "An ecommerce application writes to an Amazon DynamoDB table whose partition key is the current date. During sales events every write goes to a single partition key value, the table is throttled, and write latency rises. Which solution meets these requirements?",
     "options": [
-      "Raise the provisioned write capacity units on the table to the maximum the account allows.",
-      "Create a DynamoDB Accelerator (DAX) cluster in front of the table.",
-      "Group the writes into BatchWriteItem calls to reduce the number of requests sent to the table.",
+      "Raise the provisioned write capacity units on the table to the maximum that the account allows, and request a quota increase for the Region.",
+      "Create a DynamoDB Accelerator (DAX) cluster in front of the table so that the application reads and writes through the cluster instead of calling the table directly during a sales event.",
+      "Group the writes into BatchWriteItem calls so that fewer requests reach the table and the write load is spread across the partition.",
       "Redesign the key so that writes are spread over many partition key values, either by choosing a high-cardinality attribute or by appending a calculated shard suffix to the date."
     ],
     "correct": 3,
@@ -3043,10 +3043,10 @@ const QUESTIONS = [
     "ts": "3.4",
     "q": "A news site serves pages that are personalized for each signed-in user, alongside a large volume of static CSS, JavaScript, and image assets. The company wants to reduce overall latency and the load on the origin while keeping the personalized pages correct for each user. Which solution meets these requirements?",
     "options": [
-      "Create one cache behavior for the whole site that forwards all cookies and headers to the origin.",
+      "Create one cache behavior for the whole site that forwards all cookies and headers to the origin, so that every response is built for the user who requested it.",
       "Create separate cache behaviors by path pattern: a long TTL with a cache policy that excludes cookies for the static assets, and a short TTL with a cache policy that includes the session cookie in the cache key for the personalized pages.",
-      "Create one cache behavior for the whole site with a long TTL that applies to every path.",
-      "Serve only the static assets through CloudFront and let browsers request the personalized pages from the origin directly."
+      "Create one cache behavior for the whole site with a long TTL that applies to every path, and invalidate the distribution whenever the personalized content of any user changes so that the next request for that page is rebuilt at the origin and cached again.",
+      "Serve only the static assets through CloudFront with a long TTL, and let browsers request the personalized pages from the origin directly over a separate hostname."
     ],
     "correct": 1,
     "explanation":
@@ -3634,7 +3634,7 @@ const QUESTIONS = [
       "Register the Amazon S3 data lake locations with AWS Lake Formation so that Lake Formation manages access to the underlying data.",
       "Grant each analyst group database, table, and column-level permissions on the AWS Glue Data Catalog resources through AWS Lake Formation.",
       "Create one Amazon S3 bucket per analyst group and copy the authorized tables into each bucket with a nightly job.",
-      "Attach an Amazon S3 bucket policy for each analyst group that allows only the prefixes of the tables the group may read.",
+      "Attach an Amazon S3 bucket policy for each analyst group that allows only the prefixes of the tables the group may read, and exclude the personal data columns with a separate deny statement.",
       "Create a separate AWS Glue Data Catalog in every analyst account and crawl only the authorized prefixes."
     ],
     "correct": [0, 1],
@@ -3858,11 +3858,11 @@ const QUESTIONS = [
     "q": "EC2 instances in private subnets download large volumes of data from Amazon S3 and Amazon DynamoDB through a NAT gateway, and the NAT gateway data processing charges are high. The instances must remain unreachable from the internet. Which combination of steps will reduce these charges? (Select TWO.)",
     "multi": true,
     "options": [
-      "Move the EC2 instances to public subnets and assign them public IP addresses.",
+      "Move the Amazon EC2 instances to public subnets, and assign them public IP addresses so that their traffic to Amazon S3 and Amazon DynamoDB no longer passes through the NAT gateway.",
       "Create a gateway VPC endpoint for Amazon S3 and add a route to it in the route tables of the private subnets.",
-      "Deploy an additional NAT gateway in each Availability Zone.",
+      "Deploy an additional NAT gateway in each Availability Zone so that the traffic of the instances is spread across more gateways.",
       "Create a gateway VPC endpoint for Amazon DynamoDB and add a route to it in the route tables of the private subnets.",
-      "Replace the NAT gateway with a NAT instance on a larger instance type."
+      "Replace the NAT gateway with a NAT instance that runs on a larger instance type and is billed per instance hour instead of per gigabyte."
     ],
     "correct": [1, 3],
     "explanation":
@@ -3875,9 +3875,9 @@ const QUESTIONS = [
     "q": "A company runs dozens of workloads in separate AWS accounts that all belong to one organization in AWS Organizations. Each account buys its own Reserved Instances for its steady Amazon EC2 usage. Some of those Reserved Instances sit partly unused, while other accounts pay the On-Demand rate for matching instance usage in the same Region. Which solution will reduce the overall cost with the LEAST operational overhead?",
     "options": [
       "Purchase the Reserved Instances and Savings Plans from the management account, and confirm that Reserved Instance and Savings Plans discount sharing is in effect for the accounts in the organization.",
-      "Migrate every workload into a single AWS account.",
-      "Convert all Reserved Instances to On-Demand Instances and rely on Auto Scaling to control cost.",
-      "Create a separate AWS Organizations organization for each business unit."
+      "Migrate every workload into a single AWS account so that all Amazon EC2 usage is billed together and the existing Reserved Instances apply to any matching instance that the account launches in the Region.",
+      "Convert all Reserved Instances to On-Demand Instances, and rely on Auto Scaling to shut down the unused capacity outside business hours.",
+      "Create a separate AWS Organizations organization for each business unit, and buy Reserved Instances in the management account of each organization."
     ],
     "correct": 0,
     "explanation":
@@ -4237,10 +4237,10 @@ const QUESTIONS = [
     "q": "A company runs about 60 development and test Amazon EC2 instances that are needed only on weekdays during business hours, and several of them are over-provisioned. Which combination of steps will reduce the cost the MOST? (Select TWO.)",
     "multi": true,
     "options": [
-      "Enable Multi-AZ deployments for the development databases.",
-      "Migrate all of the instances to Dedicated Hosts.",
+      "Enable Multi-AZ deployments for the development databases so that the environment survives the loss of an Availability Zone without an administrator restoring it.",
+      "Migrate all of the instances to Dedicated Hosts so that they are billed per host rather than per instance.",
       "Stop the instances outside business hours with an Amazon EventBridge schedule that invokes an AWS Systems Manager Automation runbook.",
-      "Change every instance to the largest available instance type in its family.",
+      "Change every instance to the largest available instance type in its family so that each one finishes its work sooner and can be stopped earlier.",
       "Resize the over-provisioned instances according to the AWS Compute Optimizer recommendations."
     ],
     "correct": [2, 4],
@@ -4270,10 +4270,10 @@ const QUESTIONS = [
     "multi": true,
     "options": [
       "Create an organization-level Amazon S3 Storage Lens dashboard from the management account, with advanced metrics and recommendations activated.",
-      "Turn on S3 server access logging for every bucket and analyze the log files with Amazon Athena.",
-      "Turn on Amazon S3 Inventory for every bucket and compare the daily reports by hand.",
+      "Turn on S3 server access logging for every bucket, and analyze the log files with Amazon Athena to attribute the storage growth to the accounts that caused it.",
+      "Turn on Amazon S3 Inventory for every bucket, and compare the daily reports by hand to find the buckets that are growing fastest.",
       "Add an S3 Lifecycle rule to each bucket that deletes incomplete multipart uploads after a defined number of days.",
-      "Turn on S3 Versioning for every bucket so that object growth can be tracked over time."
+      "Turn on S3 Versioning for every bucket so that the growth of each object can be tracked from its version history over time."
     ],
     "correct": [0, 3],
     "explanation":
@@ -4360,9 +4360,9 @@ const QUESTIONS = [
     "ts": "4.2",
     "q": "An enterprise brings its own Microsoft SQL Server licenses to AWS. The license agreement is tied to physical cores, so the workloads must run on Amazon EC2 Dedicated Hosts, and the enterprise must be able to demonstrate during an audit that it never exceeded the number of cores it owns. Teams in several member accounts of an AWS Organizations organization launch these instances themselves. Which solution meets these requirements?",
     "options": [
-      "Purchase license-included EC2 instances from AWS Marketplace and stop tracking the existing licenses.",
-      "Record license assignments in AWS Systems Manager Inventory and have an administrator review the report every month.",
-      "Create an AWS Config rule that flags any instance launched without a license tag.",
+      "Purchase license-included Amazon EC2 instances from AWS Marketplace, stop tracking the existing licenses, and keep the Dedicated Hosts only for the workloads that have not been migrated yet.",
+      "Record the license assignments in AWS Systems Manager Inventory, have an administrator review the aggregated report from the organization every month, and reconcile the core counts against the purchase records before each audit is due.",
+      "Create an AWS Config rule that flags any instance that is launched without a license tag, and deploy the rule as an organization rule across the member accounts.",
       "Create a self-managed license configuration in AWS License Manager with a core-based limit and enforcement enabled, associate it with the AMIs used for these workloads, and share it with the accounts through AWS Organizations."
     ],
     "correct": 3,
@@ -4391,10 +4391,10 @@ const QUESTIONS = [
     "q": "A media company runs a rendering platform on Amazon EC2. A baseline of 20 instances from a single instance family must run continuously for at least the next year to serve an interactive front end. On top of that baseline, overflow rendering jobs write checkpoints, can be restarted at any point, and run only when the job queue is deep. Finance wants the lowest possible annual compute cost. Which combination of steps should a solutions architect take? (Select TWO.)",
     "multi": true,
     "options": [
-      "Purchase On-Demand Capacity Reservations for the overflow capacity.",
+      "Purchase On-Demand Capacity Reservations for the overflow capacity so that the rendering jobs are never short of instances.",
       "Purchase an EC2 Instance Savings Plan that covers the 20-instance baseline for a one-year term.",
-      "Purchase Standard Reserved Instances sized for the combined baseline and peak capacity.",
-      "Run the interactive front end on Spot Instances and the overflow rendering jobs on On-Demand Instances.",
+      "Purchase Standard Reserved Instances for a one-year term, sized for the combined baseline and peak rendering capacity.",
+      "Run the interactive front end on Spot Instances, and run the overflow rendering jobs on On-Demand Instances that scale with the depth of the job queue.",
       "Run the overflow rendering jobs on Spot Instances in an Auto Scaling group that is configured with several instance types across multiple Availability Zones."
     ],
     "correct": [1, 4],
