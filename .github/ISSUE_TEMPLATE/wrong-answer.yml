@@ -1,0 +1,27 @@
+name: Wrong answer or explanation
+description: Report a question whose answer or explanation is incorrect or out of date
+labels: [bank]
+body:
+  - type: input
+    id: question-id
+    attributes:
+      label: Question id
+      description: The "id" field of the question in questions.js
+      placeholder: "142"
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is wrong
+      description: Which answer or part of the explanation is incorrect, and what it should be
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: AWS documentation supporting this
+      description: Link to the AWS page that contradicts the current answer
+      placeholder: https://docs.aws.amazon.com/...
+    validations:
+      required: true
