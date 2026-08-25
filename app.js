@@ -18,6 +18,9 @@ const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
 const show = (id) => { $$(".screen").forEach(s => s.classList.remove("active")); $("#" + id).classList.add("active"); window.scrollTo({top:0, behavior:"smooth"}); };
 const letters = ["A", "B", "C", "D", "E", "F"];
+// Bank content is interpolated into the HTML templates below, so escape it: a
+// question mentioning "<VPC-ID>" or "a < b" must render literally, not as markup.
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 function shuffle(arr) {
   const a = arr.slice();
@@ -159,7 +162,7 @@ function renderQuestion() {
   q.options.forEach((opt, i) => {
     const div = document.createElement("div");
     div.className = "option" + (q.multi ? " multi" : "") + (selected.includes(i) ? " selected" : "");
-    div.innerHTML = `<div class="marker">${selected.includes(i) ? (q.multi ? "✓" : "●") : letters[i]}</div><div class="label">${opt}</div>`;
+    div.innerHTML = `<div class="marker">${selected.includes(i) ? (q.multi ? "✓" : "●") : letters[i]}</div><div class="label">${esc(opt)}</div>`;
     div.onclick = () => selectOption(q, i);
     optWrap.appendChild(div);
   });
@@ -192,7 +195,7 @@ function renderPracticeFeedback(q, selected) {
   fb.innerHTML = `
     <div class="ri-expl" style="margin-top:18px; border-left-color:${isCorrect ? 'var(--green)' : 'var(--red)'}">
       <strong style="color:${isCorrect ? 'var(--green)' : 'var(--red)'}">${isCorrect ? '✓ Correct!' : '✗ Incorrect.'}</strong>
-      &nbsp;Correct answer: <strong>${correctLabels}</strong><br><br>${q.explanation}
+      &nbsp;Correct answer: <strong>${correctLabels}</strong><br><br>${esc(q.explanation)}
     </div>`;
 }
 
@@ -369,7 +372,7 @@ function renderReview(details, filter) {
       if (isCor) { cls = "is-correct"; tag = "✓ Correct answer"; }
       if (isSel && !isCor) { cls = "is-yourwrong"; tag = "✗ Your choice"; }
       if (isSel && isCor) { tag = "✓ Your choice (correct)"; }
-      optsHtml += `<div class="ri-opt ${cls}"><span class="tag" style="min-width:18px">${letters[i]}.</span><span>${opt}${tag ? ` <em style="color:var(--muted);font-style:normal">— ${tag}</em>` : ''}</span></div>`;
+      optsHtml += `<div class="ri-opt ${cls}"><span class="tag" style="min-width:18px">${letters[i]}.</span><span>${esc(opt)}${tag ? ` <em style="color:var(--muted);font-style:normal">— ${tag}</em>` : ''}</span></div>`;
     });
 
     item.innerHTML = `
@@ -379,9 +382,9 @@ function renderReview(details, filter) {
         ${d.flagged ? '<span class="pill" style="background:rgba(210,153,34,.15);color:var(--yellow);border:1px solid var(--yellow)">⚑ Flagged</span>' : ''}
         <span style="margin-left:auto;font-weight:700;color:${statusColor};font-size:13px">${statusLabel}</span>
       </div>
-      <div class="ri-q">${d.q}</div>
+      <div class="ri-q">${esc(d.q)}</div>
       ${optsHtml}
-      <div class="ri-expl"><strong>Explanation:</strong> ${d.explanation}</div>`;
+      <div class="ri-expl"><strong>Explanation:</strong> ${esc(d.explanation)}</div>`;
     list.appendChild(item);
   });
 }
