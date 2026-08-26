@@ -11,8 +11,8 @@ const QUESTIONS = [
     "options": [
       "Install a certificate and its private key on each EC2 instance, and configure the target group to use the HTTPS protocol so that the load balancer opens TLS connections to the targets.",
       "Change the HTTPS listener to a security policy that requires TLS 1.3 for connections from clients, so that the traffic is protected with the newest protocol version along the whole path.",
-      "Change the instances' security group so that it accepts traffic on port 80 only from the security group of the load balancer, and denies every other source.",
-      "Enable mutual authentication (mTLS) on the HTTPS listener of the load balancer with a trust store that validates the certificates the clients present."
+      "Change the instances' security group so that it accepts traffic on port 80 only from the security group of the load balancer, and denies every other source, leaving the target group protocol set to HTTP.",
+      "Enable mutual authentication (mTLS) on the HTTPS listener of the load balancer with a trust store that validates the certificates the clients present, built from a certificate bundle stored in S3."
     ],
     "correct": 0,
     "explanation":
@@ -100,8 +100,8 @@ const QUESTIONS = [
     "q": "A security team must be able to reconstruct who called which AWS API, when, and from which source address across every Region in an account, and must be able to prove that the stored records have not been altered. Which solution meets these requirements?",
     "options": [
       "Enable VPC Flow Logs on all VPCs in the account, and deliver the records to Amazon CloudWatch Logs so that the source address of every request is retained.",
-      "Enable AWS Config in every Region of the account, and record all of the supported resource types in each one.",
-      "Create an Amazon CloudWatch Logs log group, and stream the application logs from every instance in the account to it.",
+      "Enable AWS Config in every Region of the account, and record all of the supported resource types in each one, storing the configuration snapshots in a dedicated Amazon S3 bucket.",
+      "Create an Amazon CloudWatch Logs log group, and stream the application logs from every instance in the account to it using the CloudWatch agent, with a 90-day retention period.",
       "Create an AWS CloudTrail trail that applies to all Regions, deliver the log files to an Amazon S3 bucket, and enable log file integrity validation."
     ],
     "correct": 3,
@@ -116,7 +116,7 @@ const QUESTIONS = [
     "options": [
       "On the DB instance's security group, add an inbound rule for the database port that specifies the web tier's security group as the source.",
       "On the DB instance's security group, add an inbound rule for the database port that specifies the VPC CIDR block as the source.",
-      "On the DB instance's security group, add an inbound rule for the database port that specifies the public subnet CIDR blocks as the source.",
+      "On the DB instance's security group, add an inbound rule for the database port that specifies the public subnet CIDR blocks in every Availability Zone as the source.",
       "On the network ACL of the private subnets, add an inbound rule that allows the database port from the public subnet CIDR blocks."
     ],
     "correct": 0,
@@ -146,7 +146,7 @@ const QUESTIONS = [
     "options": [
       "Create an IAM role in the production account that trusts the tooling account, grant it the deployment permissions, and have the pipeline call AWS STS AssumeRole to obtain temporary credentials.",
       "Create an IAM user in the production account, generate a long-lived access key for it, and store that key in AWS Secrets Manager in the tooling account so that the pipeline reads it at deployment time.",
-      "Add the production account to the trusted account list of the pipeline execution role in the tooling account, and deploy the stack directly.",
+      "Add the production account to the trusted account list of the pipeline execution role in the tooling account, attach the required CloudFormation deployment permissions to that role, and deploy the stack directly.",
       "Create an AWS Resource Access Manager share so that the tooling account is able to create resources inside the production account."
     ],
     "correct": 0,
@@ -221,7 +221,7 @@ const QUESTIONS = [
     "options": [
       "Create a service control policy that denies cloudtrail:StopLogging, cloudtrail:DeleteTrail, and cloudtrail:UpdateTrail, and attach it to the organizational units.",
       "Attach an IAM permissions boundary that denies the CloudTrail management actions to every role in the member accounts, and require that any new role is created with it attached.",
-      "Create an AWS Config rule that checks whether CloudTrail is enabled, and that sends a notification when a trail is disabled.",
+      "Create an AWS Config rule that checks whether CloudTrail logging is enabled in the account, and that sends a notification to the security team's Amazon SNS topic when a trail is disabled.",
       "Enable CloudTrail log file integrity validation, and store the digest files in a separate AWS account."
     ],
     "correct": 0,
@@ -266,7 +266,7 @@ const QUESTIONS = [
     "options": [
       "Create an IAM user in the production account with read access to the bucket, generate a long-lived access key for it, and share that key with each of the developers who work in the development account.",
       "Grant read access to the bucket with a bucket ACL that grants READ to the AuthenticatedUsers group of every AWS account.",
-      "Configure S3 Replication to copy the objects into a new bucket that the development account owns, and have the developers read the replica.",
+      "Configure S3 Replication to copy the objects into a new bucket that the development account owns, and have the developers read from that replica bucket rather than from the bucket in the production account.",
       "Create an IAM role in the production account whose trust policy allows the development account, grant the role read access to the bucket, and have the developers call sts:AssumeRole."
     ],
     "correct": 3,
@@ -310,9 +310,9 @@ const QUESTIONS = [
     "q": "A company serves a global web application through an Amazon CloudFront distribution with an Application Load Balancer as the origin. Requests that contain SQL injection or cross-site scripting payloads must be rejected as close to the viewer as possible, before they reach the origin. Which solution meets these requirements?",
     "options": [
       "Associate an AWS WAF web ACL that contains the AWS managed rule groups for SQL database and the core rule set with the Application Load Balancer that serves as the origin.",
-      "Enable AWS Shield Standard on the CloudFront distribution so that the malicious requests are dropped at the edge location.",
+      "Enable AWS Shield Standard on the CloudFront distribution so that the malicious requests are dropped at the edge location, at no additional charge to the account.",
       "Associate an AWS WAF web ACL that contains the AWS managed rule groups for SQL database and the core rule set with the CloudFront distribution.",
-      "Create a CloudFront function that inspects the body of each request and rejects the malicious payloads at the edge."
+      "Create a CloudFront function that inspects the body of each request and rejects the malicious payloads at the edge, running in the lightweight JavaScript runtime."
     ],
     "correct": 2,
     "explanation":
@@ -341,7 +341,7 @@ const QUESTIONS = [
     "options": [
       "Purchase certificates from a third-party certificate authority, import them into AWS Certificate Manager before each expiry, and associate the new certificates with the distribution and the load balancer every year.",
       "Request public certificates in AWS Certificate Manager, requesting the CloudFront certificate in the US East (N. Virginia) Region, and associate them with the distribution and the load balancer.",
-      "Issue certificates from AWS Private Certificate Authority, and associate them with the CloudFront distribution and the Application Load Balancer.",
+      "Issue certificates from AWS Private Certificate Authority using a certificate authority created in the account, and associate them with the CloudFront distribution and the Application Load Balancer listener.",
       "Generate the certificates in AWS CloudHSM, and install them on the origin Amazon EC2 instances behind the load balancer."
     ],
     "correct": 1,
@@ -369,10 +369,10 @@ const QUESTIONS = [
     "ts": "1.2",
     "q": "A company is building a mobile application. Users must be able to sign in with their existing Google or Facebook accounts, and after sign-in the application must obtain temporary AWS credentials so that it can upload objects to Amazon S3 on the user’s behalf. Which solution meets these requirements?",
     "options": [
-      "Configure AWS IAM Identity Center with Google and Facebook as external identity providers, and assign permission sets to the application users so that the mobile application receives a session for each of them.",
+      "Configure AWS IAM Identity Center with an external SAML identity provider, and assign a permission set to each of the application users that grants write access to the Amazon S3 bucket that receives the uploads.",
       "Create an IAM user for each application user, and embed the access keys of that user in the mobile application when the user first signs in.",
       "Create an Amazon Cognito user pool with Google and Facebook configured as identity providers, and use an Amazon Cognito identity pool to exchange the resulting tokens for temporary AWS credentials.",
-      "Create a SAML identity provider in IAM for Google and Facebook, and have the application call sts:AssumeRoleWithSAML to obtain the temporary credentials."
+      "Create a SAML identity provider in IAM for Google and Facebook, and have the mobile application directly call sts:AssumeRoleWithSAML with the resulting SAML assertion to obtain the temporary credentials."
     ],
     "correct": 2,
     "explanation":
@@ -474,9 +474,9 @@ const QUESTIONS = [
     "ts": "1.2",
     "q": "A SaaS provider must make its application available to customers who run their own VPCs. The traffic must not traverse the internet, and the provider does not want to manage overlapping CIDR ranges or expose its VPC address space to customers. Which solution meets these requirements?",
     "options": [
-      "Create a VPC peering connection between the provider VPC and the VPC of each individual customer, and reconcile the CIDR ranges.",
+      "Create a VPC peering connection between the provider VPC and the VPC of each individual customer, accept each connection, reconcile the CIDR ranges, and update the route tables in both VPCs.",
       "Place a Network Load Balancer in front of the application, create a VPC endpoint service for it, and have each customer create an interface VPC endpoint in their own VPC.",
-      "Create a transit gateway in the provider account, and share it with each of the customers through AWS Resource Access Manager.",
+      "Create a transit gateway in the provider account, attach the provider VPC to it as well, and share that gateway with each of the customers through the AWS Resource Access Manager service.",
       "Publish the application through an internet-facing Application Load Balancer, and restrict access with security group rules that reference the public IP ranges of each customer network."
     ],
     "correct": 1,
@@ -536,8 +536,8 @@ const QUESTIONS = [
     "options": [
       "Configure the bucket to use server-side encryption with Amazon S3 managed keys (SSE-S3) so that the objects of each business unit are encrypted as they are written.",
       "Have the application supply its own encryption key in every PUT and GET request by using server-side encryption with customer-provided keys (SSE-C).",
-      "Create an AWS KMS key with imported key material, and configure the bucket to use SSE-KMS with that key.",
-      "Have the application encrypt each object before upload, and store the data keys in AWS Secrets Manager."
+      "Create an AWS KMS key with imported key material, and configure the bucket to use SSE-KMS with that key, which AWS KMS stores and uses on the company's behalf.",
+      "Have the application encrypt each object before it is uploaded using its own locally generated key, and store the resulting data keys in AWS Secrets Manager for later use."
     ],
     "correct": 1,
     "explanation":
@@ -550,9 +550,9 @@ const QUESTIONS = [
     "q": "After a network ACL was applied to a private subnet, instances in that subnet can no longer complete outbound HTTPS connections, although the security group on the instances allows the traffic. The network ACL currently allows outbound TCP port 443 and denies everything else inbound. Outbound HTTPS must work again while the network ACL stays in place. What should a solutions architect do to accomplish this?",
     "options": [
       "Add an inbound rule to the security group of the instances that allows the ephemeral port range 1024-65535 from 0.0.0.0/0 so that the responses are accepted.",
-      "Change the network ACL to allow all inbound traffic from the VPC CIDR block that contains the subnet.",
+      "Change the network ACL to allow all inbound traffic from the VPC CIDR block that contains the subnet, in addition to the existing outbound port 443 rule.",
       "Add an inbound rule to the network ACL that allows TCP traffic on the ephemeral port range 1024-65535 from the destinations the instances contact.",
-      "Remove the network ACL and rely on the security group alone, because a network ACL cannot permit return traffic."
+      "Remove the network ACL from the subnet entirely and rely on the security group alone, because a stateless network ACL cannot permit response traffic once a connection is open."
     ],
     "correct": 2,
     "explanation":
@@ -565,7 +565,7 @@ const QUESTIONS = [
     "q": "A company that serves applications through Amazon CloudFront, Application Load Balancers, and Amazon Route 53 is targeted by large and sophisticated DDoS attacks. The company requires 24/7 access to AWS DDoS experts during an event and wants to be reimbursed for the scaling charges that an attack causes. Which solution meets these requirements?",
     "options": [
       "Subscribe to AWS Shield Advanced, add the CloudFront distributions, load balancers, and hosted zones as protected resources, and enable automatic application layer DDoS mitigation.",
-      "Rely on AWS Shield Standard, which is enabled automatically for all AWS customers and covers the protected resources at no extra charge.",
+      "Rely on AWS Shield Standard, which is enabled automatically for all AWS customers and covers the protected resources at no extra charge against common network and transport layer floods.",
       "Create an AWS WAF web ACL with rate-based rules, and associate it with the CloudFront distributions and the load balancers.",
       "Enable Amazon GuardDuty, and create an Amazon EventBridge rule that updates an AWS WAF IP set whenever a finding is generated, so that the attacking addresses are blocked at the edge locations."
     ],
@@ -614,8 +614,8 @@ const QUESTIONS = [
     "q": "A company must inspect and filter traffic that leaves several VPCs, using stateful rules that can block traffic to disallowed domain names and detect intrusion attempts. The company wants a managed service and a central point of enforcement. Which solution meets these requirements?",
     "options": [
       "Configure security group rules on the instances that allow only the approved destination ports and addresses for the outbound traffic of each VPC.",
-      "Create an AWS WAF web ACL with a rule group that blocks any request to the disallowed domain names.",
-      "Enable Amazon GuardDuty, and act on the DNS-based findings that it produces for each of the VPCs.",
+      "Create an AWS WAF web ACL with a rule group that blocks any request to the disallowed domain names, and associate the web ACL with each application load balancer.",
+      "Enable Amazon GuardDuty, and act on the DNS-based findings that it produces for each of the VPCs by reviewing them in the GuardDuty console every morning.",
       "Deploy AWS Network Firewall in a centralized inspection VPC and route the VPC traffic through its firewall endpoints with stateful rule groups."
     ],
     "correct": 3,
@@ -675,9 +675,9 @@ const QUESTIONS = [
     "ts": "1.3",
     "q": "A compliance team requires that Amazon S3 reject any request to a sensitive bucket that is not sent over TLS. Which solution meets these requirements?",
     "options": [
-      "Enable default server-side encryption with SSE-KMS on the bucket for every new object.",
+      "Enable default server-side encryption with SSE-KMS on the bucket for every new object, using a customer managed KMS key created for this bucket.",
       "Create a VPC endpoint policy for the Amazon S3 gateway endpoint that allows only the requests that are sent to the bucket over HTTPS.",
-      "Enable S3 Block Public Access on the bucket so that anonymous requests are rejected.",
+      "Enable S3 Block Public Access on the bucket so that anonymous requests are rejected, blocking public access at both the bucket and the account level.",
       "Add a bucket policy statement that denies s3:* for all principals when the aws:SecureTransport condition key is false."
     ],
     "correct": 3,
@@ -692,8 +692,8 @@ const QUESTIONS = [
     "options": [
       "Use AWS Systems Manager Session Manager, control who may start sessions with IAM policies, and enable session logging to Amazon S3 and Amazon CloudWatch Logs.",
       "Deploy a bastion host in a public subnet, allow SSH to it from the corporate CIDR block only, and record every session that passes through the bastion host so that it can be reviewed afterwards.",
-      "Create an EC2 Instance Connect Endpoint, and allow inbound port 22 from the security group of that endpoint only.",
-      "Establish an AWS Site-to-Site VPN connection, and open SSH to the instances from the corporate network only."
+      "Create an EC2 Instance Connect Endpoint in the VPC, and allow inbound port 22 from the security group of that endpoint only, on every instance in the private subnets.",
+      "Establish an AWS Site-to-Site VPN connection to the VPC, and open SSH to the instances from the corporate network only, through a security group rule scoped to that network's CIDR range."
     ],
     "correct": 0,
     "explanation":
@@ -720,8 +720,8 @@ const QUESTIONS = [
     "ts": "1.1",
     "q": "A platform team lets developers create IAM roles for their own applications in a shared account. Those developer-created roles must never be able to exceed a defined set of maximum permissions, while the existing operations roles in the same account must keep their current permissions. Which solution meets these requirements?",
     "options": [
-      "Attach a service control policy to the account that denies every action the developer-created roles must not be able to perform.",
-      "Attach an IAM policy that lists the set of maximum permissions to each of the developer users.",
+      "Attach a service control policy through AWS Organizations to the account that denies every action the developer-created roles must not be able to perform, ever.",
+      "Attach an IAM identity-based policy that lists the full set of maximum permissions directly to each of the developer users instead of to the roles they create.",
       "Create a permissions boundary policy, and grant developers iam:CreateRole only on the condition that the new role has that permissions boundary attached.",
       "Create an AWS Config rule that detects any role whose policies exceed the approved set of actions, and that notifies the platform team so the role can be corrected."
     ],
@@ -736,8 +736,8 @@ const QUESTIONS = [
     "q": "A company must detect security groups that allow inbound SSH traffic from 0.0.0.0/0 and remove the offending rule automatically, without a person intervening. Which solution meets these requirements?",
     "options": [
       "Enable Amazon GuardDuty, and send its findings to an Amazon SNS topic that notifies the security team as soon as an offending security group rule appears anywhere in the account.",
-      "Review the AWS Trusted Advisor security checks every week, and correct the findings that they report.",
-      "Create an Amazon EventBridge rule on VPC Flow Logs that invokes an AWS Lambda function to revoke the rule.",
+      "Review the AWS Trusted Advisor security checks every week, and manually correct any of the findings that it reports about the security group configuration.",
+      "Create an Amazon EventBridge rule on VPC Flow Logs that invokes an AWS Lambda function to revoke the rule, using the flow log records delivered to CloudWatch Logs.",
       "Enable the AWS Config managed rule restricted-ssh and attach an AWS Systems Manager Automation remediation action that removes the noncompliant rule."
     ],
     "correct": 3,
@@ -751,9 +751,9 @@ const QUESTIONS = [
     "q": "After a suspected intrusion, a security team must determine which IP addresses communicated with specific Amazon EC2 instances, on which ports, and whether the traffic was accepted or rejected. Which solution meets these requirements?",
     "options": [
       "Enable VPC Flow Logs on the network interfaces of the instances and query the records with Amazon CloudWatch Logs Insights.",
-      "Create an AWS CloudTrail trail with data events enabled for the instances under investigation.",
+      "Create an AWS CloudTrail trail with data events enabled for the instances under investigation, and deliver the resulting log files to an Amazon S3 bucket.",
       "Enable AWS Config recording for the Amazon EC2 and Amazon VPC resource types in the account, and review the configuration timeline of each instance.",
-      "Enable Route 53 Resolver query logging for the VPC that contains the instances."
+      "Enable Route 53 Resolver query logging for the VPC that contains the instances, and send the query logs to a CloudWatch Logs log group for review."
     ],
     "correct": 0,
     "explanation":
@@ -765,10 +765,10 @@ const QUESTIONS = [
     "ts": "1.3",
     "q": "A company encrypts Amazon S3 objects with an AWS KMS key in us-east-1 and replicates them to eu-west-1 for disaster recovery. The company must be able to decrypt the replicated objects in eu-west-1 without re-encrypting the data and without calling KMS in us-east-1. Which solution meets these requirements?",
     "options": [
-      "Create a separate AWS KMS key in eu-west-1, and re-encrypt each object with that key after it has been replicated.",
+      "Create a separate AWS KMS key in eu-west-1, and re-encrypt each object with that key after it has been replicated, using an S3 Batch Operations job.",
       "Create a multi-Region primary KMS key in us-east-1, replicate it to eu-west-1, and configure the replicated objects to use the replica key.",
       "Grant the principals in eu-west-1 access to the us-east-1 key through the key policy of that key, so that they can decrypt the replicated objects.",
-      "Create an AWS KMS key with imported key material in each Region, and import the same key material into both of them."
+      "Create an AWS KMS key with imported key material in each Region, and import the same key material into both of them, tracking its expiration date."
     ],
     "correct": 1,
     "explanation":
@@ -827,8 +827,8 @@ const QUESTIONS = [
     "options": [
       "Create an AWS WAF IP set that contains the source addresses of all the known legitimate clients, and block every other address at the web ACL of the CloudFront distribution.",
       "Add a rate-based rule to the AWS WAF web ACL that blocks source IP addresses whose request count exceeds a configured limit within the evaluation window.",
-      "Rely on AWS Shield Standard, which is enabled automatically for the CloudFront distribution.",
-      "Add a geographic match rule to the AWS WAF web ACL that blocks any request from a country outside the company market."
+      "Rely on AWS Shield Standard, which is enabled automatically at no additional charge for every CloudFront distribution and Application Load Balancer in the account.",
+      "Add a geographic match rule to the AWS WAF web ACL that blocks any request from a country outside the company market, based on the source IP address of each request."
     ],
     "correct": 1,
     "explanation":
@@ -934,7 +934,7 @@ const QUESTIONS = [
     "options": [
       "Create an IAM role in each workload account with a trust policy that allows the identity account, grant the engineers permission to call sts:AssumeRole, and have them switch roles in the console.",
       "Create IAM users in each workload account, and distribute their access keys to the engineers through an encrypted channel so that no key is ever sent in plaintext and each engineer keeps only their own credentials.",
-      "Create an IAM group in the identity account, and attach policies to it that reference the ARNs of the resources in each of the workload accounts.",
+      "Create an IAM group in the identity account, add every engineer as a member, and attach customer managed policies to it that reference the Amazon Resource Names of the resources located in each of the workload accounts.",
       "Enable AWS Organizations consolidated billing so that the IAM policies of the identity account apply to the workload accounts as well."
     ],
     "correct": 0,
@@ -978,8 +978,8 @@ const QUESTIONS = [
     "q": "A company stores a large shared dataset in one Amazon S3 bucket that several internal teams use through different applications. The bucket policy has grown long and difficult to review. The company wants each application to reach the data through its own named entry point with its own permissions, and it wants one of those entry points to accept requests only from a specific VPC. Which solution meets these requirements?",
     "options": [
       "Create one IAM role per application, and attach an inline policy that limits each of those roles to a different key prefix inside the shared bucket, reviewed by the platform team.",
-      "Split the dataset into one bucket per application, and replicate the objects between those buckets so that every team sees the whole dataset.",
-      "Enable S3 Block Public Access on the bucket, and add a bucket policy condition on the aws:SourceIp of each application.",
+      "Split the dataset into one bucket per application, and replicate the objects between those buckets so that every team sees the whole dataset, using S3 Replication rules configured on each bucket.",
+      "Enable S3 Block Public Access on the shared bucket, and add a bucket policy condition on the aws:SourceIp of each application, listing the outbound IP ranges that application uses to reach the bucket.",
       "Create an S3 access point for each application, attach an access point policy to each one, and configure the VPC-restricted application's access point with a VPC network origin."
     ],
     "correct": 3,
@@ -1086,7 +1086,7 @@ const QUESTIONS = [
     "options": [
       "Deploy AWS Network Firewall in a dedicated inspection VPC attached to the transit gateway, and route outbound traffic from every VPC through it using domain list and intrusion prevention rule groups.",
       "Deploy AWS Network Firewall endpoints in each of the twenty VPCs, and manage twenty separate sets of domain list and intrusion prevention rule groups from one account so that every VPC ends up applying the same signatures.",
-      "Keep the existing NAT gateways, and replace the workload security groups with rules that reference the approved list of destination domain names.",
+      "Keep the existing NAT gateway deployed in every one of the twenty VPCs, and replace all of the workload security group outbound rules with rules that reference the approved list of destination domain names.",
       "Deploy a Gateway Load Balancer in each VPC in front of an Auto Scaling group of self-managed inspection appliances that the retailer patches."
     ],
     "correct": 0,
@@ -1101,7 +1101,7 @@ const QUESTIONS = [
     "options": [
       "Designate a Firewall Manager administrator account and create a Network Firewall policy scoped to the organization, so that in-scope VPCs are protected and non-compliant resources are remediated automatically.",
       "Deploy AWS Network Firewall in each account with AWS CloudFormation StackSets, and re-run the stack set whenever an application team creates a new VPC so that the same firewall policy is applied to that VPC as well.",
-      "Create an AWS Config rule in every account that reports the VPCs without a firewall endpoint, and have the security team open a remediation ticket for each finding.",
+      "Create an AWS Config rule in every member account of the organization that reports the VPCs without a firewall endpoint attached, and have the security team manually open a remediation ticket for each finding it produces.",
       "Attach a service control policy that denies the ec2:CreateVpc action unless the request carries a firewall tag."
     ],
     "correct": 0,
@@ -1117,7 +1117,7 @@ const QUESTIONS = [
       "Add an AWS WAF web ACL to the Application Load Balancer with a rule that blocks any request that arrives without a valid session cookie, and redirect all of the blocked requests to a hosted sign-in page.",
       "Configure an authenticate-cognito action on the Application Load Balancer HTTPS listener so that the load balancer authenticates users against the user pool before forwarding requests.",
       "Put Amazon API Gateway in front of the Application Load Balancer, and attach an Amazon Cognito authorizer to that API.",
-      "Assign each user an IAM role through an Amazon Cognito identity pool, and have the application verify the signature of the caller."
+      "Assign each authenticated user an IAM role through an Amazon Cognito identity pool, and have the application code exchange the user pool token for those credentials on each incoming request instead."
     ],
     "correct": 1,
     "explanation":
@@ -1145,7 +1145,7 @@ const QUESTIONS = [
     "q": "A company runs several hundred Amazon EC2 instances that run both Linux and Windows in private subnets with no inbound access from the internet. The security team must apply operating system patches during a defined weekly window, exclude a small set of patches that are known to break an internal application, and produce a report showing which instances are missing approved patches. Which solution will meet these requirements with the LEAST operational overhead?",
     "options": [
       "Build a new AMI every month with the latest operating system patches, and replace the instances through an Auto Scaling group instance refresh during the weekly window.",
-      "Enable Amazon Inspector so that it scans the instances and then applies the operating system updates that are missing.",
+      "Enable Amazon Inspector so that it scans the instances for vulnerabilities, and then have it automatically install the operating system updates that its scan finds are missing.",
       "Use AWS Systems Manager Patch Manager with a custom patch baseline that excludes the problematic patches, and associate a maintenance window with the target instances.",
       "Run a scheduled AWS Lambda function that opens an SSH session to each of the instances and runs its package manager."
     ],
@@ -1161,7 +1161,7 @@ const QUESTIONS = [
     "options": [
       "Enable GuardDuty-initiated malware scan in Malware Protection for EC2 so that GuardDuty runs an agentless scan of the Amazon EBS volumes attached to the instance when such a finding is generated.",
       "Install a third-party antivirus agent on every instance through AWS Systems Manager, schedule daily scans, and forward the results to the security team so that no analyst has to start a scan by hand.",
-      "Enable Amazon Macie on the account so that it inspects the contents of the Amazon EBS volumes attached to the instance for malicious files.",
+      "Enable Amazon Macie on the account and on every Amazon S3 bucket that is located in the same AWS Region, so that it inspects the contents of the Amazon EBS volumes attached to the instance for malicious files.",
       "Enable Amazon Inspector so that it scans the file system of the instance for malware signatures after each finding is raised."
     ],
     "correct": 0,
@@ -1193,7 +1193,7 @@ const QUESTIONS = [
     "options": [
       "Configure Amazon Route 53 geolocation routing so that the DNS queries that originate from those two countries receive no answer at all for the record of the application.",
       "Associate an AWS WAF web ACL with the load balancer that contains a geographic match rule blocking those countries, alongside the AWS managed rule groups.",
-      "Add network ACL entries on the public subnets that deny each of the IP ranges allocated to those two countries.",
+      "Add network ACL entries on the public subnets that deny each of the IP ranges published as allocated to those two countries by the regional internet registries.",
       "Enable CloudFront geographic restrictions directly on the Application Load Balancer."
     ],
     "correct": 1,
@@ -1221,9 +1221,9 @@ const QUESTIONS = [
     "ts": "1.3",
     "q": "A company stores project documents in a versioned Amazon S3 bucket. Because of pending litigation, a specific set of objects must be preserved with no end date, and no user may delete or overwrite them while the matter is open. When the litigation closes, a designated compliance officer must be able to lift the protection so that the normal lifecycle rules apply again. Which solution meets these requirements?",
     "options": [
-      "Apply an S3 Object Lock retention in Compliance mode with a ten-year retention period on each of the affected object versions, and grant the compliance officer permission to shorten it.",
+      "Apply an S3 Object Lock retention in Compliance mode with a ten-year retention period on each of the affected object versions, and record the litigation reference in the object metadata.",
       "Copy the affected objects to a separate bucket, and enable S3 Block Public Access on that bucket.",
-      "Add a bucket policy that denies s3:DeleteObject for every principal except the compliance officer.",
+      "Add a bucket policy that denies s3:DeleteObject for every principal except the compliance officer, and attach that policy directly to the bucket resource that stores the affected objects.",
       "Enable S3 Object Lock on the bucket and apply a legal hold to the affected object versions, granting the compliance officer the s3:PutObjectLegalHold permission."
     ],
     "correct": 3,
@@ -1267,7 +1267,7 @@ const QUESTIONS = [
     "q": "An internal policy requires that the key material used to encrypt objects in Amazon S3 be replaced on a recurring schedule, and that objects encrypted with older key material stay readable without any re-encryption work. The team encrypts the objects with a symmetric customer managed AWS KMS key whose key material AWS KMS generated. The team does not want to change application code or update any key identifier. Which solution meets these requirements?",
     "options": [
       "Create a new customer managed key each year, and update the default encryption configuration of the bucket to point at the new key so that later objects use the newer material.",
-      "Import new key material into the existing key every year, and delete the material from the previous year.",
+      "Import new key material into the existing customer managed key every year, and delete the key material from the previous year manually through the KMS console.",
       "Enable automatic key rotation on the customer managed key so that AWS KMS creates new key material and retains the previous material for decryption.",
       "Schedule deletion of the existing key, and recreate it afterwards with the same alias."
     ],
@@ -1281,7 +1281,7 @@ const QUESTIONS = [
     "ts": "1.3",
     "q": "A regulated company must ensure that the key material protecting its data is generated and stored in single-tenant hardware security modules that the company alone controls, while its applications continue to use AWS KMS APIs and existing AWS service integrations such as encrypted Amazon EBS volumes. The company does not want to rewrite the applications to call a different cryptographic API. Which solution meets these requirements?",
     "options": [
-      "Use an AWS KMS key with imported key material, and re-import that material on a recurring schedule.",
+      "Use an AWS KMS key with imported key material, and re-import that same key material from the company's own key management system on a recurring schedule.",
       "Use an AWS managed key, and enable AWS CloudTrail logging of every use of that key.",
       "Run a software key manager on Amazon EC2 instances in a dedicated AWS account, and have the applications call that key manager directly for every operation.",
       "Create an AWS CloudHSM cluster and configure an AWS KMS custom key store backed by that cluster, then create the KMS keys in that key store."
@@ -1298,8 +1298,8 @@ const QUESTIONS = [
     "options": [
       "AWS Audit Manager, using a prebuilt framework to create an assessment that collects evidence automatically and generates an assessment report.",
       "AWS Artifact, to download the compliance reports that cover the workloads of the company and hand the relevant ones to the external auditor before the audit.",
-      "AWS Config, to record the configuration history of each resource in the accounts that are in scope.",
-      "AWS Security Hub, to run the security standard checks and export their findings to Amazon S3."
+      "AWS Config, to record the configuration history of each resource in the accounts that are in scope, using a configuration recorder in every account.",
+      "AWS Security Hub, to run the security standard checks across every account in scope and export their findings to Amazon S3 for the auditor to review later."
     ],
     "correct": 0,
     "explanation":
@@ -1341,8 +1341,8 @@ const QUESTIONS = [
     "ts": "1.3",
     "q": "A company writes millions of small objects per day to an Amazon S3 bucket that uses server-side encryption with an AWS KMS customer managed key. The finance team notices that AWS KMS request charges have become a significant part of the bill. The company must keep using its own KMS key and must not weaken encryption at rest. Which solution will meet these requirements MOST cost-effectively?",
     "options": [
-      "Switch the default encryption of the bucket to server-side encryption with Amazon S3 managed keys.",
-      "Disable automatic key rotation on the customer managed key that protects the objects.",
+      "Switch the default encryption of the bucket to server-side encryption with Amazon S3 managed keys, removing the customer managed KMS key.",
+      "Disable automatic key rotation on the customer managed KMS key that protects the objects, and leave the current key material in place for now.",
       "Aggregate the small objects into larger archive files before uploading them to the bucket, and stop using a customer managed key for the bucket.",
       "Enable S3 Bucket Keys on the bucket so that Amazon S3 uses a short-lived bucket-level key and issues fewer requests to AWS KMS."
     ],
@@ -1374,8 +1374,8 @@ const QUESTIONS = [
     "q": "An application stores user session data in a relational database. During traffic spikes the database becomes the bottleneck. A solutions architect must move the session data to a highly available store that returns reads with sub-millisecond latency. Which solution meets these requirements?",
     "options": [
       "Convert the database to a Multi-AZ DB instance deployment, and continue to store the session data in it so that the loss of the primary does not interrupt the session store.",
-      "Store the session data in an Amazon DynamoDB table that uses on-demand capacity mode so that it absorbs the traffic spikes without any capacity planning.",
-      "Store each user session as an object in an Amazon S3 bucket, and read that object on every request the application serves.",
+      "Store the session data in an Amazon DynamoDB table that uses on-demand capacity mode so that it absorbs the traffic spikes without any capacity planning, replicated in three AZs.",
+      "Store each user session as an object in an Amazon S3 bucket, and read that object on every request the application serves, using the session ID as the object's key name.",
       "Store the session data in an Amazon ElastiCache for Redis replication group that has replicas in other Availability Zones and Multi-AZ automatic failover enabled."
     ],
     "correct": 3,
@@ -1498,7 +1498,7 @@ const QUESTIONS = [
       "Increase the health check grace period of the Auto Scaling group so that instances are not replaced while they initialize, and lengthen the cooldown so that a burst does not trigger further launches.",
       "Create a scheduled scaling action that raises the desired capacity at the start of every hour of the working day.",
       "Add a warm pool to the Auto Scaling group and keep its pre-initialized instances in the Stopped state, using a lifecycle hook so that they are stopped only after initialization finishes.",
-      "Replace the scaling policy with a step scaling policy that adds a larger number of instances at each step of the alarm."
+      "Replace the scaling policy with a step scaling policy that adds a larger number of instances at each step of the alarm, where each step is defined by a range of values above the alarm threshold."
     ],
     "correct": 2,
     "explanation":
@@ -1510,7 +1510,7 @@ const QUESTIONS = [
     "ts": "2.1",
     "q": "Every object uploaded to an Amazon S3 bucket must be processed as soon as it arrives, and the bucket must not be polled. Which solution will meet these requirements with the LEAST operational overhead?",
     "options": [
-      "Run a task every minute that calls ListObjectsV2 on the bucket and processes the keys it has not seen before.",
+      "Run a task every minute that calls ListObjectsV2 on the bucket and processes the keys it has not seen before, tracking the seen keys.",
       "Enable S3 Versioning on the bucket and process the newest version of each object.",
       "Configure an S3 event notification for the s3:ObjectCreated:* event type that invokes an AWS Lambda function.",
       "Enable Amazon S3 Storage Lens on the bucket and process the objects listed in the daily metrics export."
@@ -1600,7 +1600,7 @@ const QUESTIONS = [
     "ts": "2.2",
     "q": "A company must recover its workload in a second AWS Region with a recovery time objective of minutes and a recovery point objective close to zero, while keeping the ongoing cost below that of a full duplicate of production. Which solution meets these requirements?",
     "options": [
-      "Store the backups in the second Region with AWS Backup, and build the environment from them once a disaster has been declared.",
+      "Store the nightly backups in the second Region with AWS Backup, and build the entire environment, including the database and the application tier, from them once a disaster has been declared.",
       "Replicate the database continuously to the second Region, and keep the whole application tier switched off in that Region until a disaster is declared and the application instances are all started.",
       "Run a continuously replicated database and a reduced-capacity but fully working application tier in the second Region, and scale the application tier up when a disaster is declared.",
       "Run the full production environment in both Regions, and serve user traffic from both of them at all times."
@@ -1617,8 +1617,8 @@ const QUESTIONS = [
     "options": [
       "Enable cross-zone load balancing on the Application Load Balancer so that requests are spread evenly across the Availability Zones.",
       "Enable sticky sessions on the target group by using a load balancer generated duration-based cookie.",
-      "Replace the Application Load Balancer with a Network Load Balancer that keeps the connection open.",
-      "Enable a deregistration delay on the target group of the load balancer."
+      "Replace the Application Load Balancer with a Network Load Balancer, which routes each connection using layer 4 flow hashing.",
+      "Enable a deregistration delay on the target group, which by default waits 300 seconds before removing a draining target."
     ],
     "correct": 1,
     "explanation":
@@ -1739,8 +1739,8 @@ const QUESTIONS = [
     "options": [
       "Configure a step scaling policy on an Amazon CloudWatch alarm for the average CPU utilization of the group, with an upper and a lower threshold.",
       "Configure a target tracking scaling policy that uses the ASGAverageCPUUtilization predefined metric with a target value of 50.",
-      "Configure predictive scaling on the Auto Scaling group from the historical utilization.",
-      "Configure a scheduled scaling action that sets the desired capacity of the group every hour."
+      "Configure predictive scaling on the Auto Scaling group, and let it forecast capacity from historical utilization patterns recorded over prior weeks.",
+      "Configure a scheduled scaling action that sets the desired capacity of the group every hour, based on the average utilization observed on prior days."
     ],
     "correct": 1,
     "explanation":
@@ -1752,8 +1752,8 @@ const QUESTIONS = [
     "ts": "2.1",
     "q": "Clients retry API requests when a response is slow, and those retries sometimes charge the same payment twice. Which approach will meet the requirement that a repeated request has no additional effect?",
     "options": [
-      "Increase the number of instances in the Auto Scaling group behind the API so that responses are returned before a client retries.",
-      "Enable sticky sessions on the target group of the load balancer so that a retry reaches the same target as the original request.",
+      "Increase the number of instances in the Auto Scaling group behind the API so that responses are returned before a client retries, using a target tracking scaling policy.",
+      "Enable sticky sessions on the target group of the load balancer so that a retry reaches the same target as the original request, using a load balancer generated cookie.",
       "Place an Amazon SQS FIFO queue in front of the API, and have clients write to the queue so that duplicate messages are removed before the service sees them.",
       "Require clients to send a unique idempotency key with each request, and have the service return the stored result when it sees a key again."
     ],
@@ -1798,7 +1798,7 @@ const QUESTIONS = [
     "q": "A company must define retention rules and cross-Region copies for the backups of Amazon EBS volumes, Amazon RDS databases, Amazon DynamoDB tables, and Amazon EFS file systems from a single place. Which solution will meet these requirements with the LEAST operational overhead?",
     "options": [
       "Create an Amazon EventBridge scheduled rule for each one of the services that invokes an AWS Lambda function to take the backups and to copy each one of them to a second Region.",
-      "Enable the automated backup feature of each service, and copy the backups with a script that runs on an Amazon EC2 instance.",
+      "Enable the automated backup feature of each service, and copy the resulting backups to a second Region with a script that runs on a schedule on an Amazon EC2 instance.",
       "Create an AWS Backup plan whose rules set the retention period and copy each recovery point to a vault in a second Region, and assign the resources to the plan.",
       "Create an Amazon Data Lifecycle Manager policy for each one of the four services."
     ],
@@ -1872,10 +1872,10 @@ const QUESTIONS = [
     "ts": "2.2",
     "q": "Instances launched by an Auto Scaling group need about 8 minutes to finish bootstrapping before they can answer the load balancer health check. The Auto Scaling group marks them unhealthy and replaces them before they finish starting. Which solution meets the requirement that new instances are given time to start?",
     "options": [
-      "Set the cooldown period of the Auto Scaling group to a value of 0 seconds.",
+      "Set the cooldown period of the Auto Scaling group to a value of 0 seconds, and leave the health check grace period unchanged.",
       "Change the health check type of the Auto Scaling group from ELB to EC2 so that only the instance status checks are considered.",
       "Set the health check grace period of the Auto Scaling group to a value longer than the bootstrap time.",
-      "Increase the desired capacity of the Auto Scaling group up to its maximum value."
+      "Increase the desired capacity of the Auto Scaling group up to its maximum value, launching more instances than are needed."
     ],
     "correct": 2,
     "explanation":
@@ -1921,7 +1921,7 @@ const QUESTIONS = [
     "options": [
       "Add a scheduled scaling action that covers the hours during which the bursts usually occur.",
       "Enable the default instance warmup on the Auto Scaling group, and keep the existing CPU-based scaling policy so that a worker that is still starting does not skew the metric.",
-      "Set the visibility timeout of the queue so that it matches the time a worker needs to process one message.",
+      "Set the visibility timeout of the queue so that it matches the time a worker typically needs to finish processing one message before it becomes visible again to other consumers.",
       "Publish a custom backlog-per-instance metric from the queue's ApproximateNumberOfMessagesVisible value and create a target tracking policy on that metric."
     ],
     "correct": 3,
@@ -1981,7 +1981,7 @@ const QUESTIONS = [
     "options": [
       "Create Amazon Route 53 failover records: a primary record for the Application Load Balancer with an associated health check, and a secondary record for the CloudFront distribution.",
       "Create Amazon Route 53 weighted records that send 50 percent of the user traffic to the Application Load Balancer and the other 50 percent to the CloudFront distribution at all times of the day.",
-      "Create Amazon Route 53 latency records for both the Application Load Balancer and the CloudFront distribution.",
+      "Create Amazon Route 53 latency records for both the Application Load Balancer and the CloudFront distribution, so each query resolves to whichever endpoint reports the lower round-trip latency.",
       "Create Amazon Route 53 geolocation records that name the CloudFront distribution as the default record."
     ],
     "correct": 0,
@@ -2041,7 +2041,7 @@ const QUESTIONS = [
     "options": [
       "Use AWS Elastic Disaster Recovery to replicate the servers continuously into a low-cost staging area subnet and launch recovery instances only for drills and failovers.",
       "Use AWS Backup to take a daily backup of each one of the 50 virtual machines, and restore all of those backups into the recovery Region once a disaster has been declared by the team.",
-      "Create an Amazon Machine Image from each virtual machine every week, and store those images in the recovery Region.",
+      "Create an Amazon Machine Image from each on-premises virtual machine every week, copy those images into the recovery Region, and launch replacement instances from the latest one after a failover.",
       "Configure S3 Cross-Region Replication for each of the file shares that the virtual machines use."
     ],
     "correct": 0,
@@ -2055,7 +2055,7 @@ const QUESTIONS = [
     "q": "A company backs up its data center servers with a commercial backup application that writes to a physical tape library. The company wants to retire the tape hardware while keeping the same backup application and its existing tape workflows, and it wants the backups to end up in low-cost AWS archive storage. Which solution meets these requirements?",
     "options": [
       "Install the AWS CLI on the backup server, and run a scheduled script that copies the backup files that the commercial backup application produces to an Amazon S3 bucket that uses the S3 Glacier Deep Archive storage class.",
-      "Deploy an Amazon S3 File Gateway on premises, and configure the backup application to write its backup files to an SMB file share exposed by that gateway.",
+      "Deploy an Amazon S3 File Gateway on premises, and configure the backup application to write its backup files to an SMB file share exposed by that gateway, which caches the share locally and uploads new data to an S3 bucket as objects.",
       "Deploy an AWS Storage Gateway Volume Gateway in cached mode, and present its iSCSI volumes to the backup application as disk targets.",
       "Deploy an AWS Storage Gateway Tape Gateway on premises, present its virtual tape library to the backup application as iSCSI tape drives and a media changer, and let ejected tapes be archived in S3 Glacier Deep Archive."
     ],
@@ -2084,7 +2084,7 @@ const QUESTIONS = [
     "ts": "2.2",
     "q": "A session cache runs on a single-node Amazon ElastiCache for Redis cluster. If the node fails, every cached session is lost and the application is degraded until a replacement node is provisioned. Which solution meets the requirement that the cache survives a node failure with an automatic failover?",
     "options": [
-      "Take a daily backup of the cluster, and restore that backup after a node failure.",
+      "Take a daily backup of the cluster, and restore that backup to a newly launched replacement node manually after each node failure occurs.",
       "Change the cluster to a larger node type that has more memory.",
       "Convert the cluster to a replication group that has at least one replica in another Availability Zone, and enable Multi-AZ.",
       "Create a second, independent cluster in another Availability Zone, and have the application write every session to both of those clusters."
@@ -2099,9 +2099,9 @@ const QUESTIONS = [
     "ts": "2.2",
     "q": "A company reaches AWS over a single AWS Direct Connect connection. It needs a backup path that carries the traffic if that connection fails, at the lowest possible ongoing cost. Which solution meets these requirements?",
     "options": [
-      "Make no change at all, because a Direct Connect connection is already redundant.",
+      "Make no change at all, because a Direct Connect connection is already redundant, since it is a dedicated circuit rather than an internet path.",
       "Order a second Direct Connect connection that terminates on a different router inside the same Direct Connect location as the existing one.",
-      "Enable S3 Transfer Acceleration for the part of the traffic that goes to Amazon S3.",
+      "Enable S3 Transfer Acceleration for the part of the traffic that goes to Amazon S3, using the distinct Transfer Acceleration endpoint for the bucket.",
       "Configure an AWS Site-to-Site VPN connection over the internet to the same gateway and let BGP prefer the Direct Connect path."
     ],
     "correct": 3,
@@ -2360,7 +2360,7 @@ const QUESTIONS = [
     "options": [
       "Create one simple routing record for the application that lists all of the Elastic IP addresses as its values.",
       "Create weighted records with an equal weight for each Elastic IP address and do not associate any health checks.",
-      "Create latency-based routing records so that each client is sent to the instance with the lowest measured latency.",
+      "Create latency-based routing records so that each client is sent to the instance in the Region with the lowest measured network latency.",
       "Create one multivalue answer record per instance and associate a Route 53 health check with each of those records."
     ],
     "correct": 3,
@@ -2483,7 +2483,7 @@ const QUESTIONS = [
       "Create a Route 53 failover record set for the two load balancers with a health check and set the record time to live to zero.",
       "Create a second CloudFront distribution for the standby Region and ask clients to retry the other domain name after an error.",
       "Create a CloudFront origin group containing both origins and configure the failover criteria on the relevant HTTP status codes.",
-      "Enable caching of error responses in CloudFront with a long minimum time to live so that errors are served from the edge cache."
+      "Enable caching of error responses in CloudFront with a long minimum time to live so that errors are served from the edge cache instead of the origin."
     ],
     "correct": 2,
     "explanation":
@@ -2514,7 +2514,7 @@ const QUESTIONS = [
     "options": [
       "Keep the publicly accessible endpoint and send the partners the current IP addresses of the service at the start of every month.",
       "Change the server to a VPC-hosted endpoint that is internet-facing, associate Elastic IP addresses with it, and select subnets in several Availability Zones.",
-      "Put a Network Load Balancer with an Elastic IP address in front of the publicly accessible Transfer Family endpoint and give partners the load balancer name.",
+      "Put a Network Load Balancer with an Elastic IP address in front of the publicly accessible Transfer Family endpoint and give partners the load balancer's DNS name.",
       "Replace the service with SFTP servers on Amazon EC2 instances in two Availability Zones behind a Network Load Balancer that has Elastic IP addresses."
     ],
     "correct": 1,
@@ -2663,8 +2663,8 @@ const QUESTIONS = [
     "q": "An application has an intermittent and unpredictable relational workload with long idle periods followed by short bursts. The company wants database capacity to adjust automatically and in fine increments, without having to select an instance size. Which solution meets these requirements?",
     "options": [
       "Deploy an Amazon RDS for MySQL DB instance, and enable storage auto scaling so that the database follows the workload without being resized by hand.",
-      "Deploy an Amazon RDS for MySQL DB instance, and add read replicas to it during the bursts.",
-      "Deploy an Amazon DynamoDB table in on-demand capacity mode so that no instance size has to be chosen.",
+      "Deploy an Amazon RDS for MySQL DB instance, and add read replicas to it during the bursts, removing them again once the burst has ended.",
+      "Deploy an Amazon DynamoDB table in on-demand capacity mode so that no instance size has to be chosen, and migrate the application's SQL queries to it.",
       "Deploy an Amazon Aurora Serverless v2 DB cluster and configure a minimum and maximum capacity range in Aurora capacity units."
     ],
     "correct": 3,
@@ -2782,7 +2782,7 @@ const QUESTIONS = [
     "ts": "3.2",
     "q": "A high-frequency trading platform runs a tightly coupled compute cluster on Amazon EC2 instances that are all in one Availability Zone. The nodes exchange messages constantly and need the lowest possible network latency and the highest possible throughput between one another. Which solution meets these requirements?",
     "options": [
-      "Launch the instances in a spread placement group that covers three separate Availability Zones.",
+      "Launch the instances in a spread placement group that covers three separate Availability Zones, with each instance placed on distinct underlying hardware.",
       "Launch the instances in a partition placement group that uses one partition per rack.",
       "Register the instances as targets of an internal Network Load Balancer, and have each one of the nodes communicate with the others through that load balancer.",
       "Launch the instances in a cluster placement group on an instance type that supports Elastic Fabric Adapter, and attach an EFA to each instance."
@@ -2893,7 +2893,7 @@ const QUESTIONS = [
     "options": [
       "Create an AWS Global Accelerator custom routing accelerator with the VPC subnets as endpoints, and give each group of players the accelerator address and listener port that map to the assigned instance and port.",
       "Create an AWS Global Accelerator standard accelerator with an endpoint group that contains a Network Load Balancer placed in front of all of the session servers, and publish the accelerator address to the players.",
-      "Create a Network Load Balancer with a UDP listener, register the session servers as its targets, and publish the DNS name of the load balancer to the players.",
+      "Create a Network Load Balancer with a UDP listener, register the session servers across every Availability Zone as its targets, and publish the DNS name of the load balancer to every group of players for the client to resolve.",
       "Assign an Elastic IP address to every session server, and have the matchmaking service return the address of the assigned instance to the players."
     ],
     "correct": 0,
@@ -2981,10 +2981,10 @@ const QUESTIONS = [
     "ts": "3.5",
     "q": "A monolithic application processes orders synchronously: placing an order waits for the payment, inventory, and shipping steps to complete before it returns. Throughput collapses during traffic spikes. How should a solutions architect redesign the architecture to raise throughput and let each processing step scale on its own?",
     "options": [
-      "Move the monolith to a larger Amazon EC2 instance type, and enlarge its request thread pool so that more orders are processed at the same time.",
+      "Move the monolith to a larger Amazon EC2 instance type with more vCPUs, more memory, and a larger network allowance, and enlarge its request thread pool so that more orders are processed at the same time.",
       "Run several copies of the monolith behind an Application Load Balancer, and enable sticky sessions so that each client keeps using the same copy of the monolith for the whole of its order.",
       "Have the order endpoint publish an order message to an Amazon SQS queue, and process payment, inventory, and shipping in separate worker fleets that scale on the queue depth.",
-      "Move the monolith to AWS Fargate tasks, and raise the desired count of the service so that more tasks accept orders during a spike."
+      "Move the monolith unchanged to AWS Fargate tasks running behind an Application Load Balancer, and raise the desired count of the service so that more tasks accept orders during a spike."
     ],
     "correct": 2,
     "explanation":
@@ -3089,9 +3089,9 @@ const QUESTIONS = [
     "q": "An Amazon EC2 instance runs a network-intensive application that sends a very high rate of small packets, and the instance is not reaching the expected network performance. The company wants to maximize the instance's throughput and packets-per-second rate. What should a solutions architect do to accomplish this?",
     "options": [
       "Use an instance type that supports enhanced networking with the Elastic Network Adapter and confirm that the ENA driver is enabled on the instance.",
-      "Associate several Elastic IP addresses with the primary network interface of the instance.",
+      "Associate several additional Elastic IP addresses with the primary network interface of the running instance, one address for each application that runs on it.",
       "Attach several secondary elastic network interfaces to the instance, and spread the outbound packets of the application evenly across all of those interfaces.",
-      "Move the root volume of the instance to a Provisioned IOPS SSD (io2) volume with a high provisioned IOPS value."
+      "Move the root volume of the instance to a Provisioned IOPS SSD (io2) volume with a high provisioned IOPS value, sized for the application's read and write pattern."
     ],
     "correct": 0,
     "explanation":
@@ -3106,7 +3106,7 @@ const QUESTIONS = [
       "Route every read, including the strongly consistent ones, through a DAX cluster so that all of the reads are served from the cache in memory and none of them ever reaches the table itself.",
       "Route the repeated reads through a DAX cluster as eventually consistent reads, and issue the critical operations with ConsistentRead set to true, which DAX passes through to DynamoDB.",
       "Replace DynamoDB with an Amazon ElastiCache for Redis cluster, and serve all of the reads from that cache.",
-      "Enable Amazon API Gateway stage caching in front of the DynamoDB operations, and serve the critical reads from that cache."
+      "Enable Amazon API Gateway stage caching with a defined TTL in front of the DynamoDB read operations, and serve the critical strongly consistent reads for the affected route from that cache."
     ],
     "correct": 1,
     "explanation":
@@ -3178,8 +3178,8 @@ const QUESTIONS = [
     "ts": "3.1",
     "q": "A data lake application issues a very high rate of GET requests against a single Amazon S3 bucket in which every object is stored under one key prefix. During peaks the application starts receiving 503 Slow Down responses. Which solution will scale the request throughput?",
     "options": [
-      "Enable S3 Versioning on the bucket that holds the data lake.",
-      "Recreate the bucket in an AWS Region that offers more Availability Zones.",
+      "Enable S3 Versioning on the bucket that holds the data lake, and keep every noncurrent version stored in S3 Standard indefinitely.",
+      "Recreate the bucket in an AWS Region with more Availability Zones, then copy every object into the new bucket.",
       "Spread the objects across many key prefixes and issue the requests in parallel across those prefixes.",
       "Consolidate the objects into a small number of large archive files, and read the byte ranges out of them."
     ],
@@ -3193,7 +3193,7 @@ const QUESTIONS = [
     "ts": "3.2",
     "q": "An AWS Lambda function that resizes images is CPU bound and takes about 12 seconds per invocation with 512 MB of memory configured. The function code is already optimized, and the company needs each invocation to complete significantly faster. Which solution meets these requirements?",
     "options": [
-      "Reduce the memory configured for the function to 128 MB so that more environments can run concurrently.",
+      "Reduce the memory configured for the function to 128 MB, the lowest setting available, so that more environments can run concurrently.",
       "Increase the function timeout so that every invocation has enough time to finish.",
       "Change the function's event source from Amazon S3 to Amazon SQS and process the images in batches.",
       "Increase the memory configured for the function, which increases the CPU allocated to it in proportion."
@@ -3223,10 +3223,10 @@ const QUESTIONS = [
     "ts": "3.1",
     "q": "A research lab must move 600 TB of data into Amazon S3 within three weeks. The lab's internet uplink is 200 Mbps and cannot be upgraded. Which solution meets these requirements?",
     "options": [
-      "Transfer the data over the existing link with S3 Transfer Acceleration and multipart uploads.",
+      "Transfer the data over the existing link with S3 Transfer Acceleration and multipart uploads, running the uploads continuously for the full three weeks.",
       "Order several AWS Snowball Edge Storage Optimized devices, copy the data onto them locally, and ship them to AWS for import into Amazon S3.",
       "Deploy an AWS DataSync agent, and run a scheduled DataSync task over the existing 200 Mbps internet link every night until the transfer completes.",
-      "Compress the data on premises, and upload it with the AWS CLI using many parallel threads."
+      "Compress the data on premises, and upload it with the AWS CLI using many parallel threads that keep the 200 Mbps uplink saturated around the clock for three weeks."
     ],
     "correct": 1,
     "explanation":
@@ -3344,7 +3344,7 @@ const QUESTIONS = [
     "q": "A data lake stored in a single Amazon S3 bucket is shared by dozens of teams and applications. Each consumer must be limited to its own prefix, and several consumers must be reachable only from a specific VPC. The bucket policy has grown large and hard to maintain, and the security team wants each consumer to use its own named endpoint with its own policy instead of adding more statements to the bucket policy. Which solution meets these requirements?",
     "options": [
       "Copy each prefix into a dedicated S3 bucket, and attach a separate bucket policy to each of those buckets.",
-      "Enable S3 Versioning, and use object ACLs to grant each consumer access to the objects under its own prefix.",
+      "Enable S3 Versioning on the bucket, and use object ACLs on each object to grant the appropriate consumer read access to the objects stored under its own prefix within the bucket.",
       "Create an AWS Lambda function that signs and proxies every request to the bucket on behalf of each of the consumers, and keep an allow list of prefixes inside it.",
       "Create an S3 access point for each consumer, scoped to the consumer's prefix with its own access point policy, and set the network origin to VPC where required."
     ],
@@ -3419,7 +3419,7 @@ const QUESTIONS = [
     "q": "A gaming studio is launching an augmented reality mobile application. Players connect from mobile devices over a telecommunications provider's 5G network, and the rendering backend must respond in a few milliseconds. The studio wants player traffic to reach the compute without leaving the carrier network and traversing the public internet, while the game's account database stays in the parent AWS Region. Which solution meets these requirements?",
     "options": [
       "Deploy the rendering backend on EC2 instances in the parent Region behind AWS Global Accelerator.",
-      "Deploy the rendering backend on EC2 instances in an AWS Local Zone in each country where the game launches.",
+      "Deploy the rendering backend on EC2 instances in an AWS Local Zone located in each country where the game is launched to players.",
       "Deploy the rendering backend on AWS Outposts servers installed in the carrier's data centers.",
       "Deploy the rendering backend on EC2 instances in AWS Wavelength Zones embedded in the carrier's 5G network."
     ],
@@ -3433,7 +3433,7 @@ const QUESTIONS = [
     "ts": "3.2",
     "q": "A company runs a containerized media transcoding service on Amazon ECS. Each container must read and write a large scratch cache on the local NVMe instance store of the host for performance, and the security team requires the hosts to boot from a hardened custom AMI that it maintains. The workload is steady during business hours and the company wants the highest sustained throughput per container. Which solution meets these requirements?",
     "options": [
-      "Run the ECS tasks on AWS Fargate, and attach an Amazon EFS file system to hold the scratch cache.",
+      "Run the ECS tasks on AWS Fargate, and attach an Amazon EFS file system to hold the scratch cache, mounted through the EFS volume configuration set in the task definition.",
       "Run the ECS tasks on AWS Fargate with the ephemeral storage raised to the maximum supported size.",
       "Run the ECS tasks with the EC2 launch type on a capacity provider backed by an Auto Scaling group of instance store-enabled instances launched from the custom AMI.",
       "Run the containers as AWS Lambda functions packaged as container images, and store the scratch data in the temporary directory of every one of the function invocations."
@@ -3557,7 +3557,7 @@ const QUESTIONS = [
     "options": [
       "Create an AWS Global Accelerator standard accelerator with the Network Load Balancers in the three Regions as endpoints.",
       "Create an Amazon CloudFront distribution with the Network Load Balancers as origins and enable origin failover.",
-      "Create Amazon Route 53 latency-based records for the three Network Load Balancers and associate health checks with them.",
+      "Create Amazon Route 53 latency-based records for the three Network Load Balancers and associate a health check with each of those records.",
       "Assign an Elastic IP address to a NAT gateway in each Region and publish the three addresses to the devices."
     ],
     "correct": 0,
@@ -3649,8 +3649,8 @@ const QUESTIONS = [
     "options": [
       "Replace the NAT gateway with a NAT instance that runs on a small Amazon EC2 instance in a public subnet, so that the per-GB processing charge becomes instance hours instead.",
       "Create an egress-only internet gateway, route ::/0 from the private subnet route tables to it, send the partner traffic over IPv6, and delete the NAT gateway.",
-      "Attach an internet gateway to the route tables of the private subnets, and assign a public IPv4 address to each of the instances.",
-      "Create interface VPC endpoints for the partner APIs, and route the outbound partner traffic to those endpoints."
+      "Attach an internet gateway to the route tables of the private subnets, and assign a public IPv4 address to each of the instances that runs in those private subnets today.",
+      "Create interface VPC endpoints backed by AWS PrivateLink for the partner APIs, and route every one of the outbound partner traffic flows to those endpoints inside the VPC."
     ],
     "correct": 1,
     "explanation":
@@ -3664,8 +3664,8 @@ const QUESTIONS = [
     "options": [
       "Retain all objects in S3 Standard, and turn on S3 Versioning so that the volume pricing tiers apply as the total amount of stored data keeps growing.",
       "Create a lifecycle configuration that transitions objects to S3 Standard-IA after 30 days and to S3 Glacier Flexible Retrieval after 365 days.",
-      "Create a lifecycle configuration that transitions the objects to S3 Glacier Deep Archive on the day that they are uploaded.",
-      "Create a lifecycle configuration that transitions the objects to S3 One Zone-IA after 30 days and then expires them after 365 days."
+      "Create a lifecycle configuration that transitions the objects to S3 Glacier Deep Archive on the day that they are uploaded, where a restore can take up to 12 hours.",
+      "Create a lifecycle configuration that transitions the objects to S3 One Zone-IA after 30 days and then expires them after 365 days, kept in one Availability Zone."
     ],
     "correct": 1,
     "explanation":
@@ -3723,8 +3723,8 @@ const QUESTIONS = [
     "q": "A company has taken a manual Amazon RDS DB snapshot before every release for three years, and several hundred of those snapshots remain, including snapshots of DB instances that were decommissioned long ago. Every remaining DB instance also keeps its automated backup retention period at the maximum value. A cost review shows that backup storage is now the largest line of the Amazon RDS bill, and the team confirms that point-in-time recovery is required for the last 7 days only. Which solution will meet these requirements MOST cost-effectively?",
     "options": [
       "Stop each DB instance outside business hours so that its instance hours stop, and so that the backup storage already accumulated stops being billed as well.",
-      "Reduce the allocated storage of each DB instance so that the automated backups taken afterwards are smaller.",
-      "Copy the manual DB snapshots to a second AWS Region, and delete the copies that remain in the original Region.",
+      "Reduce the allocated storage of each DB instance so that the automated backups taken afterwards are smaller, without touching the retention period.",
+      "Copy the manual DB snapshots to a second AWS Region, and delete the copies that remain in the original Region, keeping only the copies in the destination Region.",
       "Delete the manual DB snapshots that are no longer needed and set the automated backup retention period to 7 days on each DB instance."
     ],
     "correct": 3,
@@ -3754,8 +3754,8 @@ const QUESTIONS = [
     "options": [
       "Keep on-demand mode, and set a maximum read and write request rate on the table so that its cost cannot pass a known ceiling.",
       "Switch the table to provisioned capacity mode with auto scaling configured around the observed traffic.",
-      "Enable DynamoDB Accelerator (DAX) in front of the table to serve the repeated reads.",
-      "Move the table data to Amazon S3, and query it with Amazon Athena instead."
+      "Enable DynamoDB Accelerator (DAX) in front of the table to serve the repeated reads, provisioning a cluster of cache nodes for it.",
+      "Move the table data to Amazon S3, and query it with Amazon Athena instead, defining a table in the AWS Glue Data Catalog."
     ],
     "correct": 1,
     "explanation":
@@ -3797,7 +3797,7 @@ const QUESTIONS = [
     "ts": "4.2",
     "q": "A data team runs batch video rendering jobs that tolerate interruption and resume from checkpoints. The jobs start at irregular times. Which solution will meet these requirements MOST cost-effectively?",
     "options": [
-      "Purchase 1-year Standard Reserved Instances sized for the peak of the rendering fleet.",
+      "Purchase 1-year Standard Reserved Instances sized for the peak of the rendering fleet, committing to that instance family and Region for the full term.",
       "Run the whole rendering fleet on Dedicated Hosts instead.",
       "Run each rendering job on On-Demand Instances, and terminate those instances as soon as the job that they were running has completed.",
       "Run the rendering fleet on Spot Instances and use the two-minute interruption notice to checkpoint before an instance is reclaimed."
@@ -3919,8 +3919,8 @@ const QUESTIONS = [
     "ts": "4.3",
     "q": "A non-production Amazon RDS for MySQL DB instance is needed only during business hours on weekdays. The company wants to eliminate the DB instance compute charges outside those hours while keeping the data and the endpoint. Which solution will meet these requirements?",
     "options": [
-      "Modify the DB instance to a smaller instance class every night by using a scheduled script.",
-      "Convert the DB instance to a Multi-AZ deployment, and direct the night-time traffic to the standby.",
+      "Modify the DB instance to a smaller instance class every night by using a scheduled script, and modify it back to the original class again each morning.",
+      "Convert the DB instance to a Multi-AZ deployment, and direct the night-time application traffic to the standby instance in the second Availability Zone.",
       "Create an Amazon EventBridge schedule that invokes an AWS Lambda function to stop the DB instance in the evening and start it in the morning.",
       "Create a snapshot every evening, delete the DB instance afterwards, and restore that snapshot again every morning before business hours start."
     ],
@@ -3964,7 +3964,7 @@ const QUESTIONS = [
     "ts": "4.1",
     "q": "An administrator reviews the gp2 Amazon EBS volumes that are attached to a fleet of EC2 instances and finds that the default performance is sufficient. The company wants to lower the price paid per GiB without losing performance. Which solution will meet these requirements?",
     "options": [
-      "Modify the volumes to the io2 volume type.",
+      "Modify the volumes to the io2 Provisioned IOPS volume type.",
       "Modify the volumes to the st1 volume type.",
       "Increase the size of the gp2 volumes.",
       "Modify the volumes to the gp3 volume type."
@@ -3980,9 +3980,9 @@ const QUESTIONS = [
     "q": "A company has accumulated hundreds of Amazon EBS snapshots over several years. Many of them belong to deleted volumes or are obsolete. The company wants snapshot retention and deletion to be enforced continuously without manual work. Which solution will meet these requirements with the LEAST operational overhead?",
     "options": [
       "Create Amazon Data Lifecycle Manager policies that define the snapshot schedule and the retention rules.",
-      "Turn on encryption for all of the existing snapshots.",
+      "Turn on encryption for all of the existing snapshots using a customer managed AWS KMS key instead of the account default key.",
       "Copy the snapshots into an Amazon S3 bucket that has a lifecycle rule moving them to S3 Glacier Deep Archive.",
-      "Register every snapshot as an AMI, and deregister those AMIs once a year."
+      "Register every snapshot as an AMI, and deregister those AMIs once a year during a manually scheduled cleanup review."
     ],
     "correct": 0,
     "explanation":
@@ -4009,8 +4009,8 @@ const QUESTIONS = [
     "ts": "4.2",
     "q": "A company wants billing data broken down to the level of individual resources and tags, delivered to Amazon S3, and queried with Amazon Athena for custom FinOps reports. Which solution provides the MOST granular data?",
     "options": [
-      "Export a report out of AWS Cost Explorer every month.",
-      "Create an AWS Budgets report for each of the teams.",
+      "Export a report out of AWS Cost Explorer every month, and save the file for the finance team.",
+      "Create an AWS Budgets report for each of the teams, and configure it to notify the team by email.",
       "Turn on AWS Cost Anomaly Detection, and export all of the findings that it produces.",
       "Create an AWS Cost and Usage Report that is delivered to an Amazon S3 bucket."
     ],
@@ -4056,10 +4056,10 @@ const QUESTIONS = [
     "ts": "4.2",
     "q": "A workload runs licensed software under a BYOL agreement that is tied to the physical server and requires visibility of the sockets and physical cores. The company wants to minimize cost while satisfying that constraint. Which solution will meet these requirements?",
     "options": [
-      "Launch the workload on Dedicated Instances instead.",
+      "Launch the workload on Dedicated Instances instead, which run on hardware dedicated to the account but managed by AWS.",
       "Launch the workload on a Dedicated Host that is covered by a Dedicated Host Reservation.",
       "Launch the workload on Spot Instances that run inside a diversified Spot Fleet of several types.",
-      "Launch the workload on shared-tenancy On-Demand Instances."
+      "Launch the workload on shared-tenancy On-Demand Instances, which place it on hardware shared with other accounts."
     ],
     "correct": 1,
     "explanation":
@@ -4102,8 +4102,8 @@ const QUESTIONS = [
     "q": "A cost review shows large EC2-Other data transfer charges. Two chatty microservices running on EC2 instances exchange terabytes of traffic across Availability Zones in the same Region. The company accepts reduced Availability Zone redundancy for these two services. What should a solutions architect recommend?",
     "options": [
       "Place both services in the same Availability Zone and have them communicate over their private IPv4 addresses.",
-      "Have the two services communicate with each other over their public IPv4 addresses.",
-      "Route the traffic between the two services through the internet gateway of the VPC.",
+      "Have the two services communicate with each other over their public IPv4 addresses, billed at the internet data transfer rate.",
+      "Route the traffic between the two services through the internet gateway of the VPC, using the public IPv4 address of each instance.",
       "Route the traffic between the two services through a NAT gateway that is deployed in each of the Availability Zones."
     ],
     "correct": 0,
@@ -4119,7 +4119,7 @@ const QUESTIONS = [
       "Request all of the fleet capacity from whichever single Spot capacity pool currently advertises the lowest Spot price anywhere in the Region.",
       "Replace all of the Spot Instances in the fleet with On-Demand Instances.",
       "Configure the fleet with many instance types across multiple Availability Zones and use the price-capacity-optimized allocation strategy.",
-      "Request only the largest available instance type across all of the Availability Zones."
+      "Request only the largest available instance type across all of the Availability Zones in the Region, keeping the fleet limited to that single instance family."
     ],
     "correct": 2,
     "explanation":
@@ -4131,10 +4131,10 @@ const QUESTIONS = [
     "ts": "4.1",
     "q": "Compliance archives are stored in S3 Glacier Flexible Retrieval. Routine retrievals can take hours, but during an incident investigation the security team occasionally needs a small number of archives within minutes. Which solution will meet these requirements MOST cost-effectively?",
     "options": [
-      "Copy all of the compliance archives to S3 Standard storage instead.",
+      "Copy all of the compliance archives to S3 Standard storage instead, and keep every one of them there going forward.",
       "Transition all of the archives to S3 Glacier Deep Archive and use Expedited retrievals when an investigation starts.",
       "Keep the archives in S3 Glacier Flexible Retrieval and use Expedited retrievals only for the urgent requests.",
-      "Transition all of the archives to S3 Glacier Instant Retrieval."
+      "Transition all of the archives to S3 Glacier Instant Retrieval, which charges a higher storage rate than Flexible Retrieval."
     ],
     "correct": 2,
     "explanation":
@@ -4162,9 +4162,9 @@ const QUESTIONS = [
     "q": "An Amazon DynamoDB table serves steady, predictable traffic of about 8,000 reads per second and 2,000 writes per second around the clock. The table uses on-demand capacity mode and the monthly bill is high. Which solution will reduce the cost?",
     "options": [
       "Add a global secondary index to the table so that the read traffic is spread across two separate indexes.",
-      "Turn on point-in-time recovery for the table itself.",
+      "Turn on point-in-time recovery for the table itself, which restores it to any second in the preceding 35 days.",
       "Switch the table to provisioned capacity mode and configure auto scaling on its read and write capacity.",
-      "Turn on DynamoDB Streams, and process part of the traffic asynchronously."
+      "Turn on DynamoDB Streams, and process part of the traffic asynchronously through a Lambda function that consumes the stream records."
     ],
     "correct": 2,
     "explanation":
@@ -4177,9 +4177,9 @@ const QUESTIONS = [
     "q": "An AWS Lambda function is configured with 10,240 MB of memory. Monitoring shows the function uses at most 400 MB and spends most of its duration waiting on external API calls. The company wants to reduce the cost of the function without changing its behavior. Which solution will meet these requirements?",
     "options": [
       "Reduce the configured memory to a value slightly above the observed usage, such as 512 MB.",
-      "Increase the configured timeout of the function instead.",
+      "Increase the configured timeout of the function instead, leaving its memory setting at 10,240 MB.",
       "Package the function as a container image instead of a .zip archive built from the same code.",
-      "Configure provisioned concurrency for the function itself."
+      "Configure provisioned concurrency for the function itself, which keeps execution environments initialized and billed."
     ],
     "correct": 0,
     "explanation":
@@ -4208,7 +4208,7 @@ const QUESTIONS = [
     "options": [
       "Set a 30-day retention period on the log groups and deliver older log data to Amazon S3, with lifecycle rules that transition it to an archival storage class.",
       "Keep the Never expire retention setting on all of the log groups, and rely on CloudWatch Logs Insights queries to find whatever the compliance team happens to need.",
-      "Set a 30-day retention period on the log groups, and accept the loss of the older log data.",
+      "Set a 30-day retention period on the log groups, and accept the loss of the older log data, which CloudWatch Logs permanently deletes once the new expiration setting takes effect.",
       "Create a second log group in another AWS Region, and replicate every log event into it."
     ],
     "correct": 0,
@@ -4223,8 +4223,8 @@ const QUESTIONS = [
     "options": [
       "Turn on S3 Transfer Acceleration on the bucket that holds the public genomics dataset.",
       "Turn on Requester Pays on the bucket and require every requester to authenticate.",
-      "Grant anonymous public read access to the whole bucket.",
-      "Change the storage class of the whole dataset to S3 One Zone-IA."
+      "Grant anonymous public read access to the whole bucket, using a bucket policy that allows s3:GetObject broadly.",
+      "Change the storage class of the whole dataset to S3 One Zone-IA, stored in a single Availability Zone."
     ],
     "correct": 1,
     "explanation":
@@ -4254,9 +4254,9 @@ const QUESTIONS = [
     "q": "A company archives sensor readings to Amazon S3. Each reading is stored as its own object of about 15 KB, and the bucket holds several billion of them. An S3 Lifecycle rule transitions the objects to S3 Glacier Deep Archive after 30 days, and the readings are never retrieved except during an annual audit. After the rule took effect the monthly S3 bill increased instead of falling. Which solution will meet these requirements MOST cost-effectively?",
     "options": [
       "Change the lifecycle rule so that it transitions each one of the objects to S3 Glacier Instant Retrieval after 30 days instead.",
-      "Change the lifecycle rule so that it transitions the objects to S3 One Zone-IA after 30 days.",
+      "Change the lifecycle rule so that it transitions the objects to the S3 One Zone-IA storage class after 30 days instead of to S3 Glacier Deep Archive.",
       "Aggregate each day of readings into a single large object before the lifecycle rule transitions it to S3 Glacier Deep Archive.",
-      "Move the objects to S3 Intelligent-Tiering, and enable its Deep Archive Access tier."
+      "Move the objects to the S3 Intelligent-Tiering storage class, and enable its optional Archive Access and Deep Archive Access tiers for the bucket."
     ],
     "correct": 2,
     "explanation":
@@ -4285,7 +4285,7 @@ const QUESTIONS = [
     "ts": "4.1",
     "q": "A company runs a shared content repository on an Amazon EFS file system. Analysis shows that most files are read heavily during the first few weeks after upload and then are almost never opened again, although they must stay online and immediately readable. The file system must remain resilient to the loss of an Availability Zone. Storage charges have grown steadily as the repository has accumulated years of content. Which solution will meet these requirements MOST cost-effectively?",
     "options": [
-      "Recreate the repository as an EFS One Zone file system, and copy the data across to it with AWS DataSync.",
+      "Recreate the repository as an EFS One Zone file system, and copy the data across to it with AWS DataSync, configuring a task whose destination location is the new one-zone file system.",
       "Change the file system to Provisioned Throughput mode, and set a low provisioned throughput value.",
       "Migrate the repository to an Amazon EBS volume that is attached to a single Amazon EC2 instance which exports the file system to all of the clients over NFS from one Availability Zone.",
       "Configure EFS lifecycle policies so that files not accessed for 30 days move to the EFS Infrequent Access storage class and colder files move to the EFS Archive storage class."
@@ -4316,7 +4316,7 @@ const QUESTIONS = [
     "q": "A company protects several Amazon EFS file systems with AWS Backup. The backup plan keeps every recovery point in warm storage for seven years to satisfy an auditor. Restores are requested at most once a year, and the business accepts that such a restore may take several hours to complete. The backup vault has become one of the largest lines on the monthly bill. Which solution will meet these requirements MOST cost-effectively?",
     "options": [
       "Reduce the backup frequency from daily to weekly, and keep the seven-year warm retention.",
-      "Copy each recovery point to a backup vault in a second AWS Region, and delete the original recovery point.",
+      "Copy each recovery point to a backup vault in a second AWS Region, and delete the original recovery point, using a cross-Region copy action defined within the same AWS Backup plan.",
       "Add a lifecycle rule to the backup plan that moves recovery points to cold storage after a set number of days, with a deletion date at least 90 days after that transition.",
       "Restore each of the recovery points to an Amazon S3 bucket, and apply an S3 Lifecycle rule that transitions the restored data to S3 Glacier Deep Archive after a few days have passed."
     ],
@@ -4347,7 +4347,7 @@ const QUESTIONS = [
     "options": [
       "Activate the enhanced infrastructure metrics recommendation preference in Compute Optimizer so that the lookback period is extended to 93 days.",
       "Install the Amazon CloudWatch agent on all of the instances so that it publishes custom memory utilization metrics for the rightsizing analysis to use.",
-      "Use the AWS Cost Explorer rightsizing recommendations instead of AWS Compute Optimizer.",
+      "Use the AWS Cost Explorer rightsizing recommendations for the fleet instead of AWS Compute Optimizer, and disable the Compute Optimizer service in the account.",
       "Increase the metric retention period of the EC2 namespace in Amazon CloudWatch."
     ],
     "correct": 0,
@@ -4440,7 +4440,7 @@ const QUESTIONS = [
       "Use provisioned capacity mode with table auto scaling and a low minimum capacity setting.",
       "Use on-demand capacity mode so that the table serves requests as they arrive without capacity planning.",
       "Use provisioned capacity mode with capacity set to the highest spike measured during load testing.",
-      "Use provisioned capacity mode together with a DynamoDB Accelerator (DAX) cluster in front of the table."
+      "Use provisioned capacity mode together with a DynamoDB Accelerator (DAX) cluster of nodes placed in front of the table to serve reads."
     ],
     "correct": 1,
     "explanation":
@@ -4469,8 +4469,8 @@ const QUESTIONS = [
     "options": [
       "Keep one reader of the same instance class as the writer and configure Aurora Auto Scaling to add and remove additional readers in response to the reporting load.",
       "Keep all five readers running, and enable the Aurora cluster cache management feature so that a failover finds an already warm buffer pool on the reader that gets promoted.",
-      "Delete every reader instance, and send the reporting queries to the writer instance during the two-hour morning window.",
-      "Replace the writer with a larger instance class, and delete all of the readers to remove their hourly cost from the bill."
+      "Delete every reader instance in the cluster entirely, and send the reporting queries directly to the writer instance during the two-hour morning window each business day.",
+      "Replace the writer instance with a larger Aurora DB instance class sized for the two-hour reporting peak, and delete all of the readers to remove their hourly cost from the monthly bill."
     ],
     "correct": 0,
     "explanation":
@@ -4497,7 +4497,7 @@ const QUESTIONS = [
     "ts": "4.4",
     "q": "A company reaches Amazon S3 and Amazon DynamoDB from a VPC through interface VPC endpoints deployed in three Availability Zones. All of the traffic originates from EC2 instances inside that VPC and targets the two services in the same Region; nothing on premises and no other VPC uses the endpoints. The bill shows an hourly charge for each endpoint in each Availability Zone plus a per-GB data processing charge on a large traffic volume. Which solution will meet these requirements MOST cost-effectively?",
     "options": [
-      "Delete the interface endpoints, and route the traffic through a NAT gateway in each Availability Zone.",
+      "Delete the interface endpoints, and route the traffic through a NAT gateway that is deployed in each of the three Availability Zones that the VPC currently spans.",
       "Replace the interface endpoints with gateway VPC endpoints for Amazon S3 and Amazon DynamoDB, and associate them with the private subnet route tables.",
       "Keep a single interface endpoint in one Availability Zone, and send all of the traffic from every one of the private subnets in the VPC to that endpoint.",
       "Enable S3 Transfer Acceleration, and have the instances use the accelerated endpoint."
@@ -4515,7 +4515,7 @@ const QUESTIONS = [
       "Provision an AWS Direct Connect dedicated connection between the factory and the AWS Region, and carry the telemetry over a private virtual interface.",
       "Add a second Site-to-Site VPN tunnel, and spread the telemetry traffic across both of the tunnels by using equal-cost multipath routing at the gateway.",
       "Ship the telemetry to AWS each month on a set of AWS Snowball Edge devices instead.",
-      "Keep the Site-to-Site VPN, and enable Amazon S3 Transfer Acceleration for the uploads."
+      "Keep the Site-to-Site VPN, and enable Amazon S3 Transfer Acceleration for the uploads, billed as an added per-gigabyte fee on top of standard transfer charges."
     ],
     "correct": 0,
     "explanation":
@@ -4543,7 +4543,7 @@ const QUESTIONS = [
     "q": "A VPC spans three Availability Zones and hosts an application tier in private subnets in each of them; the tier must remain deployed across all three Availability Zones. A single NAT gateway in one Availability Zone handles all outbound traffic, and every private subnet route table sends its default route to that NAT gateway. A cost review reports a large NAT gateway data processing charge and, separately, a large Availability Zone to Availability Zone data transfer charge. What should a solutions architect recommend?",
     "options": [
       "Replace the NAT gateway with a NAT instance in that same Availability Zone.",
-      "Consolidate the whole application tier into the single Availability Zone that hosts the NAT gateway.",
+      "Consolidate the whole application tier into the single Availability Zone that already hosts the shared NAT gateway, and terminate the instances in the other two zones.",
       "Attach an additional elastic network interface to the NAT gateway in each of the other two Availability Zones, and route the subnets to those interfaces.",
       "Deploy a NAT gateway in every Availability Zone and point each private subnet route table at the NAT gateway that sits in its own Availability Zone."
     ],
